@@ -1,0 +1,878 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import './styles.css';
+
+/* ─── DATA ────────────────────────────────────────────────────────── */
+const SKILLS = {
+  'Programming': [
+    { name: 'Python',      level: 85 },
+    { name: 'PHP',         level: 88 },
+    { name: 'JavaScript',  level: 80 },
+    { name: 'HTML & CSS',  level: 90 },
+  ],
+  'Backend': [
+    { name: 'Laravel',     level: 95 },
+    { name: 'CodeIgniter', level: 75 },
+    { name: 'REST API',    level: 50 },
+    { name: 'RBAC / Auth', level: 90 },
+  ],
+  'Frontend': [
+    { name: 'Tailwind CSS',       level: 88 },
+    { name: 'Alpine.js',          level: 80 },
+    { name: 'Responsive Design',  level: 90 },
+    { name: 'React',              level: 65 },
+  ],
+  'Database': [
+    { name: 'MySQL',       level: 85 },
+    { name: 'phpMyAdmin',  level: 82 },
+  ],
+  'AI & Computer Vision': [
+    { name: 'YOLO',         level: 95 },
+    { name: 'Deep Learning',level: 75 },
+    { name: 'Roboflow',     level: 95 },
+    { name: 'OpenCV',       level: 80 },
+  ],
+  'Tools & DevOps': [
+    { name: 'Git',              level: 82 },
+    { name: 'Figma',            level: 85 },
+    { name: 'VPS / Linux',      level: 78 },
+    { name: 'Hostinger / Nginx',level: 75 },
+  ],
+};
+
+const EXPERIENCES = [
+  {
+    role: 'Full Stack Developer',
+    company: 'Website Development Project',
+    location: 'Yogyakarta',
+    period: 'Oct 2025 – Present',
+    type: 'Freelance',
+    highlights: [
+      'Mengembangkan dan memelihara aplikasi web enterprise berbasis Laravel dengan fokus pada performa, keamanan, dan skalabilitas sistem.',
+      'Mengimplementasikan desain UI/UX responsif dari wireframe Figma menjadi antarmuka web interaktif menggunakan Tailwind CSS dan Alpine.js.',
+      'Merancang dan mengoptimalkan struktur database MySQL serta membangun dashboard admin multi-level untuk visualisasi laporan dan monitoring sistem.',
+      'Melakukan deployment ke VPS & Hostinger, mengonfigurasi Tailscale untuk akses jaringan aman, dan setup perangkat keras NVR, CCTV, serta Router dalam ekosistem monitoring terintegrasi.',
+    ],
+  },
+  {
+    role: 'UI/UX Designer',
+    company: 'Freelance / Project Based',
+    location: 'Yogyakarta',
+    period: 'Oct 2025 – Present',
+    type: 'Freelance',
+    highlights: [
+      'Merancang antarmuka pengguna (UI) di Figma dengan prioritas pada visual hierarchy dan pengalaman pengguna (UX) yang intuitif dan efisien.',
+      'Menyusun User Flow, Sitemap, dan prototipe interaktif high-fidelity untuk memvalidasi alur navigasi sebelum masuk tahap pengembangan.',
+      'Mengembangkan identitas visual dan desain logo yang representatif untuk memperkuat branding digital klien.',
+      'Mengintegrasikan elemen fungsional seperti QR Code dan aset visual operasional ke dalam sistem desain.',
+    ],
+  },
+  {
+    role: 'Beta Tester',
+    company: 'Game Studio (Roblox)',
+    location: 'Yogyakarta',
+    period: 'Nov – Des 2024',
+    type: 'Contract',
+    highlights: [
+      'Melakukan pengujian fungsional sistematis pada game berbasis Roblox, mencakup testing map, mekanisme gameplay, dan edge case scenarios.',
+      'Mengidentifikasi, mendokumentasikan, dan melaporkan bug serta glitch secara terstruktur kepada tim developer.',
+      'Menyampaikan feedback teknis berbasis pengalaman pengguna untuk peningkatan stabilitas dan kualitas UX game.',
+    ],
+  },
+  {
+    role: 'Table Officials Shot Clock',
+    company: 'IBL 3x3 Event',
+    location: 'Yogyakarta',
+    period: 'May 2024',
+    type: 'Contract',
+    highlights: [
+      'Shot Clock Operator mengoperasikan perangkat pengatur waktu terpisah.',
+      'Melakukan koordinasi real-time dengan wasit lapangan dan rekan table officials (Scorer & Game Clock) untuk memastikan integritas data skor dan waktu pertandingan tetap akurat.',
+      'Menjaga kepatuhan terhadap regulasi teknis pertandingan, termasuk penentuan waktu mati (dead ball), situasi reset jam, dan pergantian pemain di bawah tekanan tempo permainan 3x3 yang sangat cepat.',
+    ],
+  },
+  {
+    role: 'Content Creator & Streamer',
+    company: 'YouTube Live',
+    location: 'Sukabumi',
+    period: 'Jun 2021 – Jan 2024',
+    type: 'Self-employed',
+    highlights: [
+      'Melakukan live streaming gaming secara rutin dan membangun audiens organik di platform YouTube.',
+      'Membuat aset visual berkualitas (thumbnail, banner) menggunakan Adobe Photoshop untuk meningkatkan CTR konten.',
+      'Menulis script konten terstruktur dan mengedit video menggunakan Adobe Premiere Pro untuk menghasilkan konten yang engaging.',
+    ],
+  },
+];
+
+const PROJECTS = [
+  {
+    num: '01',
+    title: 'AI Basketball Score Counter',
+    subtitle: 'Undergraduate Thesis · Computer Vision',
+    desc: 'Sistem deteksi dan penghitungan skor bola basket secara real-time menggunakan YOLO. Model dilatih dengan dataset custom dari Roboflow dan diimplementasikan dengan OpenCV untuk analisis video live maupun rekaman, tanpa memerlukan operator manual.',
+    tech: ['Python', 'YOLO', 'OpenCV', 'Roboflow', 'Deep Learning'],
+    highlight: 'Thesis',
+    link: '#', github: '#',
+  },
+  {
+    num: '02',
+    title: 'Enterprise Admin Dashboard',
+    subtitle: 'Laravel Full Stack · Web App',
+    desc: 'Aplikasi web enterprise dengan sistem Role-Based Access Control (RBAC) multi-level, dashboard admin yang kaya fitur, manajemen data dinamis, visualisasi laporan berbasis grafik, dan integrasi monitoring CCTV via web interface.',
+    tech: ['Laravel', 'MySQL', 'Tailwind CSS', 'Alpine.js', 'VPS', 'Nginx'],
+    highlight: 'Production',
+    link: '#', github: '#',
+  },
+  {
+    num: '03',
+    title: 'UI/UX Design System',
+    subtitle: 'Figma · Design & Prototyping',
+    desc: 'Perancangan design system lengkap mencakup User Flow, Sitemap, wireframe low-to-high fidelity, identitas visual & logo branding, dan prototipe interaktif untuk berbagai proyek web klien — siap handoff ke developer.',
+    tech: ['Figma', 'Canva', 'Prototyping', 'Branding', 'UX Research'],
+    highlight: 'Design',
+    link: '#', github: null,
+  },
+  {
+    num: '04',
+    title: 'Secure Network Infrastructure',
+    subtitle: 'DevOps · Server & Networking',
+    desc: 'Konfigurasi dan integrasi infrastruktur jaringan aman: deployment aplikasi Laravel ke VPS Linux, konfigurasi Nginx & SSL, setup Tailscale VPN untuk remote access, dan integrasi hardware monitoring (NVR, CCTV, Router).',
+    tech: ['Linux', 'VPS', 'Tailscale', 'Nginx', 'Hostinger', 'SSL'],
+    highlight: 'Infra',
+    link: '#', github: '#',
+  },
+];
+
+const SERVICES = [
+  { icon: '⚙️', title: 'Full Stack Web Development',  desc: 'Membangun aplikasi web end-to-end dengan Laravel & MySQL — arsitektur solid, backend scalable, dan frontend responsif yang siap production.' },
+  { icon: '🧠', title: 'Computer Vision & AI',         desc: 'Implementasi sistem deteksi objek real-time dan klasifikasi visual menggunakan YOLO dan deep learning untuk otomasi dan analisis visual.' },
+  { icon: '🎨', title: 'UI/UX Design (Figma)',         desc: 'Merancang pengalaman pengguna intuitif dan visual profesional — dari wireframe, User Flow, hingga prototipe interaktif siap handoff.' },
+  { icon: '🖥️', title: 'Server & Deployment',          desc: 'Setup VPS Linux, konfigurasi Nginx & SSL, deployment Laravel, manajemen domain, dan integrasi jaringan aman menggunakan Tailscale.' },
+];
+
+const STATS = [
+  { num: '2025', label: 'S.Kom Graduate' },
+  { num: '3+',   label: 'Roles & Projects' },
+  { num: 'MVP',  label: 'Basketball Award' },
+  { num: '2',    label: 'Active Roles' },
+];
+
+const isTouchDevice = () =>
+  typeof window !== 'undefined' &&
+  ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
+/* ─── COMPONENT ───────────────────────────────────────────────────── */
+export default function App() {
+  const [activeSection,    setActiveSection]   = useState('home');
+  const [menuOpen,         setMenuOpen]        = useState(false);
+  const [feedbackText,     setFeedbackText]    = useState('');
+  const [feedbackSent,     setFeedbackSent]    = useState(false);
+  const [cursorPos,        setCursorPos]       = useState({ x: -100, y: -100 });
+  const [hovering,         setHovering]        = useState(false);
+  const [isTouch,          setIsTouch]         = useState(false);
+  const [activeExpIndex,   setActiveExpIndex]  = useState(0);
+  const [visibleSections,  setVisibleSections] = useState(new Set(['home']));
+
+  const sections = ['home','about','services','skills','education','experience','projects','contact'];
+
+  /* ── Effects ──────────────────────────────────────────── */
+  useEffect(() => { setIsTouch(isTouchDevice()); }, []);
+
+  useEffect(() => {
+    if (isTouch) return;
+    const move = (e) => setCursorPos({ x: e.clientX, y: e.clientY });
+    window.addEventListener('mousemove', move);
+    return () => window.removeEventListener('mousemove', move);
+  }, [isTouch]);
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((e) => {
+        if (e.isIntersecting) {
+          setActiveSection(e.target.id);
+          setVisibleSections((p) => new Set([...p, e.target.id]));
+        }
+      }),
+      { threshold: 0.1, rootMargin: '0px 0px -5% 0px' }
+    );
+    sections.forEach((s) => { const el = document.getElementById(s); if (el) observer.observe(el); });
+    return () => observer.disconnect();
+  }, []);
+
+  /* ── Helpers ──────────────────────────────────────────── */
+  const scrollTo = useCallback((id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    setMenuOpen(false);
+  }, []);
+
+  const isVis = (id) => visibleSections.has(id);
+  const hoverOn  = () => !isTouch && setHovering(true);
+  const hoverOff = () => !isTouch && setHovering(false);
+  const cur = isTouch ? 'pointer' : 'none';
+
+  const handleContact = (e) => {
+    e.preventDefault();
+    if (feedbackText.trim()) {
+      setFeedbackSent(true);
+      setFeedbackText('');
+      setTimeout(() => setFeedbackSent(false), 3000);
+    }
+  };
+
+  /* ── SVG Icons (reusable) ─────────────────────────────── */
+  const IconPhone = () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.16 6.16l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.92 17z"/>
+    </svg>
+  );
+
+  /* ─────────────────── RENDER ──────────────────────────── */
+  return (
+    <div className="app">
+
+      {/* Custom cursor — desktop only */}
+      {!isTouch && (
+        <div
+          className={`custom-cursor ${hovering ? 'hovering' : ''}`}
+          style={{ left: cursorPos.x, top: cursorPos.y }}
+        />
+      )}
+
+      {/* ── SIDEBAR ───────────────────────────────────────── */}
+      <nav className="sidebar">
+        <button className="sidebar-logo" onClick={() => scrollTo('home')}>
+          <span className="logo-bracket">&lt;</span>MY PORTOFOLIO<span className="logo-bracket">/&gt;</span>
+        </button>
+
+        <div className="availability-badge">
+          <span className="avail-dot" /><span>Open to Work</span>
+        </div>
+
+        <ul className="nav-links">
+          {sections.map((s) => (
+            <li key={s}>
+              <button
+                className={`nav-link ${activeSection === s ? 'active' : ''}`}
+                onClick={() => scrollTo(s)}
+                onMouseEnter={hoverOn} onMouseLeave={hoverOff}
+              >
+                <span className="nav-hash">#</span><span>{s}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        <div className="sidebar-footer">
+          <div className="sidebar-contacts">
+            <a href="mailto:alexadma16@gmail.com" className="sidebar-contact-link" onMouseEnter={hoverOn} onMouseLeave={hoverOff}>
+              <span className="sc-icon">✉</span> alexadma16@gmail.com
+            </a>
+            <a href="https://www.linkedin.com/in/alexander-adma" target="_blank" rel="noreferrer"
+              className="sidebar-contact-link" onMouseEnter={hoverOn} onMouseLeave={hoverOff}>
+              <span className="sc-icon">in</span> alexander-adma
+            </a>
+          </div>
+          <div className="feedback-box">
+            <p className="feedback-label">Feedback~ Drop a Thought</p>
+            <form onSubmit={handleContact} className="feedback-form">
+              <textarea value={feedbackText} onChange={(e) => setFeedbackText(e.target.value)}
+                placeholder="Your thoughts..." className="feedback-input" rows={2} />
+              <button type="submit" className="feedback-send" onMouseEnter={hoverOn} onMouseLeave={hoverOff}>
+                {feedbackSent ? '✓ Sent' : 'Send'}
+              </button>
+            </form>
+          </div>
+          <p className="copyright">© 2025 Alexander Adma Karyadi</p>
+        </div>
+      </nav>
+
+      {/* ── HAMBURGER ─────────────────────────────────────── */}
+      <button
+        className={`hamburger ${menuOpen ? 'open' : ''}`}
+        onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Toggle menu"
+        style={{ cursor: 'pointer' }}
+      >
+        <span /><span /><span />
+      </button>
+
+      {/* ── MOBILE MENU ───────────────────────────────────── */}
+      {menuOpen && (
+        <div className="mobile-menu">
+          {/* Close area tap (background) */}
+          <button
+            className="mobile-logo"
+            onClick={() => scrollTo('home')}
+            style={{ cursor: 'pointer' }}
+          >
+            <span className="logo-bracket">&lt;</span>AAK<span className="logo-bracket">/&gt;</span>
+          </button>
+
+          <div className="availability-badge" style={{ marginBottom: '0.25rem' }}>
+            <span className="avail-dot" /><span>Open to Work</span>
+          </div>
+
+          {/* Nav links */}
+          {sections.map((s) => (
+            <button key={s} className="mobile-nav-link" onClick={() => scrollTo(s)} style={{ cursor: 'pointer' }}>
+              <span style={{ color: 'var(--accent)' }}>#</span>{s}
+            </button>
+          ))}
+
+          <div className="mobile-divider" />
+
+          {/* Quick actions */}
+          <div className="mobile-actions">
+            <a
+              href="cv.pdf"
+              download="Alexander_Adma_Karyadi_CV.pdf"
+              className="mobile-action-btn primary"
+              onClick={() => setMenuOpen(false)}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Download CV
+            </a>
+            <a
+              href="https://wa.me/6282227175851"
+              target="_blank" rel="noreferrer"
+              className="mobile-action-btn wa"
+              onClick={() => setMenuOpen(false)}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              Chat WhatsApp
+            </a>
+            <a href="mailto:alexadma16@gmail.com" className="mobile-action-btn outline">
+              ✉ Hire Me
+            </a>
+          </div>
+
+          <p className="mobile-contact-info">
+            alexadma16@gmail.com<br />0822-2717-5851
+          </p>
+        </div>
+      )}
+
+      {/* ── MAIN ──────────────────────────────────────────── */}
+      <main className="main-content">
+
+        {/* ══ HOME ══════════════════════════════════════════ */}
+        <section id="home" className="section section-home">
+          <div className="home-inner">
+            <div className="home-tag">
+              <span className="tag-dot" /> Full Stack Developer · UI/UX Designer · Computer Vision Engineer
+            </div>
+
+            <h1 className="hero-name">
+              # ALEXANDER<br />
+              <span className="hero-accent">ADMA KARYADI.</span>
+            </h1>
+
+            <p className="hero-bio">
+              Sarjana Informatika (2025) dari Universitas Sanata Dharma Yogyakarta.
+              Saya membangun web application yang <em>scalable</em> dengan Laravel,
+              merancang UI yang <em>intuitif</em> di Figma, dan mengimplementasikan
+              sistem <em>Computer Vision</em> berbasis AI untuk kebutuhan industri nyata.
+            </p>
+
+            <div className="hero-meta">
+              <span className="meta-item">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                Yogyakarta, Indonesia
+              </span>
+              <span className="meta-sep">·</span>
+              <span className="meta-avail">
+                <span className="avail-dot-sm" /> Available for opportunities
+              </span>
+            </div>
+
+            <div className="hero-cta">
+              <button className="btn-primary" onClick={() => scrollTo('projects')}
+                onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                View My Work →
+              </button>
+
+              <a href="cv.pdf" download="Alexander_Adma_Karyadi_CV.pdf"
+                className="btn-cv" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download CV
+              </a>
+
+              <a href="mailto:alexadma16@gmail.com" className="btn-ghost"
+                onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                Hire Me
+              </a>
+            </div>
+
+            <div className="stats-row">
+              {STATS.map(({ num, label }) => (
+                <div key={label} className="stat-card">
+                  <span className="stat-num">{num}</span>
+                  <span className="stat-label">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop deco */}
+          <div className="home-deco">
+            <div className="deco-ring r1" />
+            <div className="deco-ring r2" />
+            <div className="code-block">
+              <div className="code-block-header">
+                <span className="cb-dot" style={{ background: '#ff5f57' }} />
+                <span className="cb-dot" style={{ background: '#febc2e' }} />
+                <span className="cb-dot" style={{ background: '#28c840' }} />
+                <span className="cb-file">alex.py</span>
+              </div>
+              <pre className="code-block-body">{`class AlexanderAdma:
+    name     = "Alexander Adma Karyadi"
+    degree   = "S.Kom Informatika (2025)"
+    stack    = ["Laravel", "Python", "MySQL"]
+    ai_focus = "Computer Vision (YOLO)"
+    design   = "Figma UI/UX"
+    location = "Yogyakarta, Indonesia"
+    
+    def is_available(self):
+        return True  # Always open!
+    
+    def contact(self):
+        return "alexadma16@gmail.com"`}</pre>
+            </div>
+          </div>
+        </section>
+
+        {/* ══ ABOUT ════════════════════════════════════════= */}
+        <section id="about" className={`section reveal ${isVis('about') ? 'visible' : ''}`}>
+          <div className="section-header">
+            <span className="section-num">01.</span>
+            <h2 className="section-title">About Me</h2>
+            <div className="section-line" />
+          </div>
+
+          <div className="about-grid">
+            <div className="about-text-col">
+              <p className="about-lead">
+                Halo! Saya <strong>Alexander Adma Karyadi</strong> — fresh graduate Informatika yang
+                telah membuktikan kemampuan di dunia nyata melalui proyek dan pengalaman kerja aktif.
+              </p>
+              <p>
+                Selama empat tahun di <strong>Universitas Sanata Dharma Yogyakarta</strong>, saya
+                membangun fondasi teknis yang kuat sekaligus mengasah soft skill melalui kepemimpinan
+                organisasi. Skripsi saya — implementasi <strong>AI Computer Vision berbasis YOLO </strong>
+                untuk deteksi bola basket real-time — mencerminkan kemampuan saya memecahkan masalah
+                nyata dengan teknologi mutakhir.
+              </p>
+              <p>
+                Saat ini saya aktif sebagai <strong>Full Stack Developer</strong> dan <strong>UI/UX
+                Designer</strong>, membangun sistem web enterprise berbasis Laravel dan merancang
+                antarmuka di Figma yang langsung digunakan klien.
+              </p>
+              <p>
+                Saya percaya bahwa <em>kode terbaik lahir dari empati terhadap pengguna</em>, dan
+                desain terbaik datang dari pemahaman mendalam terhadap sistem.
+              </p>
+
+              <div className="about-values">
+                {[
+                  { icon: '⚡', title: 'Fast Learner',         desc: 'Cepat beradaptasi dengan stack, tools, dan domain baru' },
+                  { icon: '🎯', title: 'Detail-Oriented',       desc: 'Teliti dalam kode, desain, dan komunikasi teknis' },
+                  { icon: '🤝', title: 'Leader & Team Player',  desc: 'Berpengalaman memimpin dan berkolaborasi lintas divisi' },
+                ].map(v => (
+                  <div key={v.title} className="value-item">
+                    <span className="value-icon">{v.icon}</span>
+                    <div>
+                      <strong>{v.title}</strong>
+                      <p>{v.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="about-sidebar">
+              <div className="profile-card-box">
+                <div className="profile-avatar">
+                  <img src="/FotoPP.jpg" alt="Alexander Adma Karyadi" />
+                </div>
+                <div>
+                  <div className="profile-name">Alexander Adma Karyadi</div>
+                  <div className="profile-role">Full Stack · UI/UX · Computer Vision</div>
+                </div>
+                <div className="profile-divider" />
+                <div className="profile-info-list">
+                  {[
+                    ['Degree',    'S.Kom Informatika'],
+                    ['University','Sanata Dharma, Yogyakarta'],
+                    ['Status',    'Fresh Graduate (2025)'],
+                    ['Location',  'Yogyakarta, Indonesia'],
+                    ['Email',     'alexadma16@gmail.com'],
+                    ['Phone',     '0822-2717-5851'],
+                  ].map(([k, v]) => (
+                    <div key={k} className="pil-item">
+                      <span className="pil-key">{k}</span>
+                      <span className="pil-val">{v}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="profile-divider" />
+                <div className="profile-social">
+                  <a href="https://www.linkedin.com/in/alexander-adma" target="_blank" rel="noreferrer"
+                    className="social-btn" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                    </svg>
+                    LinkedIn
+                  </a>
+                  <a href="mailto:alexadma16@gmail.com" className="social-btn"
+                    onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                      <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                    Email Me
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══ SERVICES ══════════════════════════════════════ */}
+        <section id="services" className={`section reveal ${isVis('services') ? 'visible' : ''}`}>
+          <div className="section-header">
+            <span className="section-num">02.</span>
+            <h2 className="section-title">What I Do</h2>
+            <div className="section-line" />
+          </div>
+          <p className="section-intro">Saya menawarkan solusi digital menyeluruh — dari ideasi, desain, development, hingga deployment.</p>
+          <div className="services-grid">
+            {SERVICES.map((s, i) => (
+              <div key={i} className="service-card" onMouseEnter={hoverOn} onMouseLeave={hoverOff}>
+                <div className="service-icon-wrap">{s.icon}</div>
+                <h3 className="service-title">{s.title}</h3>
+                <p className="service-desc">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ══ SKILLS ════════════════════════════════════════ */}
+        <section id="skills" className={`section reveal ${isVis('skills') ? 'visible' : ''}`}>
+          <div className="section-header">
+            <span className="section-num">03.</span>
+            <h2 className="section-title">Technical Skills</h2>
+            <div className="section-line" />
+          </div>
+          <p className="section-intro">Stack teknologi yang saya kuasai dan gunakan secara aktif dalam membangun produk digital:</p>
+          <div className="skills-grid">
+            {Object.entries(SKILLS).map(([cat, items]) => (
+              <div key={cat} className="skill-category">
+                <h3 className="skill-cat-title"><span className="cat-arrow">▸</span> {cat}</h3>
+                <div className="skill-items">
+                  {items.map((skill) => (
+                    <div key={skill.name} className="skill-row">
+                      <div className="skill-row-top">
+                        <span className="skill-name">{skill.name}</span>
+                        <span className="skill-pct">{skill.level}%</span>
+                      </div>
+                      <div className="skill-bar-track">
+                        <div className="skill-bar-fill" style={{ width: `${skill.level}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ══ EDUCATION ═════════════════════════════════════ */}
+        <section id="education" className={`section reveal ${isVis('education') ? 'visible' : ''}`}>
+          <div className="section-header">
+            <span className="section-num">04.</span>
+            <h2 className="section-title">Education</h2>
+            <div className="section-line" />
+          </div>
+          <div className="edu-main-card">
+            <div className="edu-header-row">
+              <div>
+                <div className="edu-badge-pill">Bachelor's Degree · S1</div>
+                <h3 className="edu-degree">Sarjana Informatika (S.Kom)</h3>
+                <p className="edu-school">Universitas Sanata Dharma · Yogyakarta, Indonesia</p>
+              </div>
+              <span className="edu-period-badge">Aug 2021 – Aug 2025</span>
+            </div>
+            <div className="edu-body">
+              <div className="edu-thesis-box">
+                <div className="edu-thesis-label">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                  Undergraduate Thesis
+                </div>
+                <p className="edu-thesis-title">
+                  DETEKSI OBJEK UNTUK MEMANTAU KEAKURATAN TEMBAKAN DALAM LATIHAN INDIVIDU OLAHRAGA BASKET BERBASIS ALGORITMA YOLO 
+                </p>
+                <p className="edu-thesis-sub">
+                  Menggunakan algoritma YOLO dan OpenCV dengan dataset custom yang dilatih melalui platform Roboflow.
+                  Sistem mampu mendeteksi bola dan menentukan kejadian skor tanpa operator manual.
+                </p>
+                <div className="edu-thesis-tech">
+                  {['Python','TensorFlow','YOLO','OpenCV','Roboflow','ultralytics','Deep Learning','Computer Vision'].map(t => (
+                    <span key={t} className="eth-chip">{t}</span>
+                  ))}
+                </div>
+              </div>
+              <div className="edu-activities">
+                <div className="edu-act-title">Organizational Achievements</div>
+                <div className="edu-act-grid">
+                  {[
+                    { icon: '🏀', text: 'MVP Basketball — Ngejaman Cup 3.0' },
+                    { icon: '🥇', text: 'Juara 1 — 3x3 Basketball Ngejaman Cup 3.0' },
+                    { icon: '🎮', text: 'Juara 2 — E-sport Valorant tingkat Fakultas' },
+                    { icon: '👥', text: 'Coordinator Basket UKM — Universitas Sanata Dharma (2023–2024)' },
+                    { icon: '🏆', text: 'Coordinator Acara — Turnamen Basket antar Fakultas (2023)' },
+                    { icon: '📋', text: 'Divisi Humas — Dialog Orang Tua FST (2023)' },
+                    { icon: '📚', text: 'Aktif mengikuti seminar & workshop teknologi nasional' },
+                  ].map((a, i) => (
+                    <div key={i} className="edu-act-item">
+                      <span className="edu-act-icon">{a.icon}</span>
+                      <span>{a.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══ EXPERIENCE ════════════════════════════════════ */}
+        <section id="experience" className={`section reveal ${isVis('experience') ? 'visible' : ''}`}>
+          <div className="section-header">
+            <span className="section-num">05.</span>
+            <h2 className="section-title">Experience</h2>
+            <div className="section-line" />
+          </div>
+          <div className="exp-layout">
+            <div className="exp-tabs">
+              {EXPERIENCES.map((e, i) => (
+                <button key={i}
+                  className={`exp-tab ${activeExpIndex === i ? 'active' : ''}`}
+                  onClick={() => setActiveExpIndex(i)}
+                  onMouseEnter={hoverOn} onMouseLeave={hoverOff}
+                  style={{ cursor: cur }}>
+                  <span className="exp-tab-role">{e.role}</span>
+                  <span className="exp-tab-co">{e.company}</span>
+                </button>
+              ))}
+            </div>
+            <div className="exp-detail">
+              {EXPERIENCES.map((e, i) => i === activeExpIndex && (
+                <div key={i} className="exp-panel active">
+                  <div className="exp-panel-top">
+                    <div>
+                      <h3 className="exp-role">
+                        {e.role}<span className="exp-company-inline"> @ {e.company}</span>
+                      </h3>
+                      <p className="exp-location">{e.location}</p>
+                    </div>
+                    <div className="exp-right-meta">
+                      <span className="exp-period">{e.period}</span>
+                      <span className="exp-type-badge">{e.type}</span>
+                    </div>
+                  </div>
+                  <ul className="exp-highlights">
+                    {e.highlights.map((h, j) => (
+                      <li key={j}><span className="exp-bullet">▹</span><span>{h}</span></li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ══ PROJECTS ══════════════════════════════════════ */}
+        <section id="projects" className={`section reveal ${isVis('projects') ? 'visible' : ''}`}>
+          <div className="section-header">
+            <span className="section-num">06.</span>
+            <h2 className="section-title">Projects</h2>
+            <div className="section-line" />
+          </div>
+          <p className="section-intro">Proyek-proyek yang paling merepresentasikan keahlian teknis dan cara saya berpikir:</p>
+          <div className="projects-grid">
+            {PROJECTS.map((p, i) => (
+              <div key={i} className="project-card" onMouseEnter={hoverOn} onMouseLeave={hoverOff}>
+                <div className="project-card-top">
+                  <span className="project-num">{p.num}</span>
+                  <span className={`project-highlight hl-${p.highlight.toLowerCase()}`}>{p.highlight}</span>
+                </div>
+                <h3 className="project-title">{p.title}</h3>
+                <p className="project-subtitle">{p.subtitle}</p>
+                <p className="project-desc">{p.desc}</p>
+                <div className="project-tech">
+                  {p.tech.map((t) => <span key={t} className="project-badge">{t}</span>)}
+                </div>
+                <div className="project-links">
+                  {p.github && (
+                    <a href={p.github} className="proj-link-btn ghost"
+                      onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+                      </svg>
+                      GitHub
+                    </a>
+                  )}
+                  <a href={p.link} className="proj-link-btn accent"
+                    onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                    View →
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ══ CONTACT ═══════════════════════════════════════ */}
+        <section id="contact" className={`section reveal ${isVis('contact') ? 'visible' : ''}`}>
+          <div className="section-header">
+            <span className="section-num">07.</span>
+            <h2 className="section-title">Get In Touch</h2>
+            <div className="section-line" />
+          </div>
+
+          <div className="contact-layout">
+            <div className="contact-left">
+              <h3 className="contact-heading">Mari Berkolaborasi!</h3>
+              <p className="contact-text">
+                Saya sedang aktif mencari peluang baru sebagai <strong>Full Stack Developer</strong>,
+                <strong> UI/UX Designer</strong>, atau <strong>AI/Computer Vision Engineer</strong>.
+                Apabila Anda memiliki posisi relevan, proyek menarik, atau ingin berdiskusi — jangan
+                ragu menghubungi saya. Inbox saya selalu terbuka!
+              </p>
+
+              <div className="contact-info-cards">
+
+                {/* Email — same pattern */}
+                <a href="mailto:alexadma16@gmail.com" className="cic"
+                  onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                  <div className="cic-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                      <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                  </div>
+                  <div className="cic-body">
+                    <div className="cic-label">Email</div>
+                    <div className="cic-value">alexadma16@gmail.com</div>
+                  </div>
+                  <span className="cic-arrow">↗</span>
+                </a>
+
+                {/* LinkedIn — same pattern */}
+                <a href="https://www.linkedin.com/in/alexander-adma" target="_blank" rel="noreferrer"
+                  className="cic" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                  <div className="cic-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                    </svg>
+                  </div>
+                  <div className="cic-body">
+                    <div className="cic-label">LinkedIn</div>
+                    <div className="cic-value">linkedin.com/in/alexander-adma</div>
+                  </div>
+                  <span className="cic-arrow">↗</span>
+                </a>
+
+                {/* WhatsApp — EXACTLY same pattern as LinkedIn/Email */}
+                <a
+                  href="https://wa.me/6282227175851"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="cic"
+                  onMouseEnter={hoverOn}
+                  onMouseLeave={hoverOff}
+                  style={{ cursor: cur }}
+                >
+                  <div className="cic-icon">
+                    <IconPhone />
+                  </div>
+                  <div className="cic-body">
+                    <div className="cic-label">WhatsApp / Phone</div>
+                    <div className="cic-value">0822-2717-5851</div>
+                  </div>
+                  <span className="cic-arrow">↗</span>
+                </a>
+
+              </div>
+            </div>
+
+            <div className="contact-right">
+              <div className="contact-form-box">
+                <h4 className="cfb-title">Kirim Pesan Langsung</h4>
+                <form onSubmit={handleContact} className="contact-form">
+                  <div className="cf-row">
+                    <div className="cf-group">
+                      <label className="cf-label">Nama</label>
+                      <input type="text" className="cf-input" placeholder="Nama Anda" required />
+                    </div>
+                    <div className="cf-group">
+                      <label className="cf-label">Email</label>
+                      <input type="email" className="cf-input" placeholder="email@perusahaan.com" required />
+                    </div>
+                  </div>
+                  <div className="cf-group">
+                    <label className="cf-label">Keperluan</label>
+                    <select className="cf-input cf-select" style={{ cursor: cur }}>
+                      <option value="">Pilih keperluan...</option>
+                      <option>Full Stack Developer Position</option>
+                      <option>UI/UX Designer Position</option>
+                      <option>AI / Computer Vision Project</option>
+                      <option>Freelance Project</option>
+                      <option>Diskusi / Kolaborasi</option>
+                    </select>
+                  </div>
+                  <div className="cf-group">
+                    <label className="cf-label">Pesan</label>
+                    <textarea className="cf-input cf-textarea"
+                      placeholder="Halo Alex, saya tertarik untuk..."
+                      rows={5} value={feedbackText}
+                      onChange={(e) => setFeedbackText(e.target.value)} required />
+                  </div>
+                  <button type="submit" className="cf-submit"
+                    onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                    {feedbackSent ? '✓ Pesan Terkirim!' : 'Kirim Pesan →'}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div className="footer-strip">
+            <span>© 2025 Alexander Adma Karyadi · All Rights Reserved</span>
+            <span>Built with React in Yogyakarta 🇮🇩</span>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  );
+}
