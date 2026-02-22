@@ -518,7 +518,7 @@ export default function App() {
     stack    = ["Laravel", "Python", "MySQL"]
     ai_focus = "Computer Vision (YOLO)"
     design   = "Figma UI/UX"
-    location = "Yogyakarta, Indonesia"
+    location = "Kota Sukabumi, Indonesia"
     
     def is_available(self):
         return True  # Always open!
