@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import emailjs from '@emailjs/browser';
 import './styles.css';
+
+// ─── EMAILJS CONFIG ─────────────────────────────────────────────────
+// Ganti dengan kredensial EmailJS kamu:
+const EJS_SERVICE = 'service_nqe11s2';   // Service ID
+const EJS_TEMPLATE = 'template_1welqjv';  // Template ID (Contact Form)
+const EJS_FEEDBACK = 'template_1welqjv';  // Template ID (Sidebar Feedback) — bisa sama
+const EJS_KEY = 'ZWD3pIbVpDewDruZt';  // Public Key
 
 /* ─── DATA ────────────────────────────────────────────────────────── */
 const SKILLS = {
@@ -35,7 +43,7 @@ const SKILLS = {
     { name: 'Git', level: 82 },
     { name: 'Figma', level: 85 },
     { name: 'VPS / Linux', level: 80 },
-    { name: 'Hostinger ', level: 75 },
+    { name: 'Hostinger', level: 75 },
   ],
 };
 
@@ -112,7 +120,7 @@ const PROJECTS = [
     desc: 'Sistem deteksi dan penghitungan skor bola basket secara real-time menggunakan YOLO. Model dilatih dengan dataset custom dari Roboflow dan diimplementasikan dengan OpenCV untuk analisis video live maupun rekaman, tanpa memerlukan operator manual.',
     tech: ['Python', 'YOLO', 'OpenCV', 'Roboflow', 'Deep Learning'],
     highlight: 'Thesis',
-    link: 'https://github.com/alexadma/proyek-rent-mobil', // ganti jika ada link demo
+    link: 'https://github.com/alexadma/proyek-rent-mobil',
     github: 'https://github.com/alexadma/proyek-rent-mobil',
   },
   {
@@ -120,17 +128,17 @@ const PROJECTS = [
     title: 'Personal Portfolio Website',
     subtitle: 'React · UI/UX Design · Open Source',
     desc: 'Website portofolio personal yang dibangun dengan React, menampilkan proyek, pengalaman, dan keahlian secara interaktif. Dilengkapi custom cursor, animasi scroll reveal, sidebar navigasi responsif, dan mobile menu — didesain dengan pendekatan developer-aesthetic.',
-    tech: ['React', 'JavaScript', 'CSS  ', 'Vite', 'Responsive Design'],
+    tech: ['React', 'JavaScript', 'CSS', 'Vite', 'Responsive Design'],
     highlight: 'Open Source',
     link: 'https://github.com/alexadma/portfolio',
     github: 'https://github.com/alexadma/portfolio',
   },
   {
     num: '03',
-    title: 'DJVR rent car website',
-    subtitle: 'Laravel Full Stack · personal project · Open Source',
+    title: 'DJVR Rent Car Website',
+    subtitle: 'Laravel Full Stack · Personal Project · Open Source',
     desc: 'Website rental mobil dengan sistem booking dan manajemen mobil berbasis Laravel. Dilengkapi fitur login, dashboard admin, dan integrasi payment gateway.',
-    tech: ['React', 'JavaScript', 'CSS', 'Vite', 'Responsive Design'],
+    tech: ['Laravel', 'MySQL', 'PHP', 'Tailwind CSS', 'Alpine.js'],
     highlight: 'Open Source',
     link: 'https://github.com/alexadma/proyek-rent-mobil',
     github: 'https://github.com/alexadma/proyek-rent-mobil',
@@ -139,7 +147,7 @@ const PROJECTS = [
     num: '04',
     title: 'Padel Live Streaming Website',
     subtitle: 'Laravel Full Stack · Server & Networking · Client Work',
-    desc: 'Konfigurasi dan integrasi infrastruktur jaringan aman: deployment aplikasi Laravel ke VPS Linux, konfigurasi  & SSL, setup Tailscale VPN untuk remote access, dan integrasi hardware monitoring (NVR, CCTV, Router). Source code bersifat confidential milik klien.',
+    desc: 'Konfigurasi dan integrasi infrastruktur jaringan aman: deployment aplikasi Laravel ke VPS Linux, konfigurasi & SSL, setup Tailscale VPN untuk remote access, dan integrasi hardware monitoring (NVR, CCTV, Router). Source code bersifat confidential milik klien.',
     tech: ['Laravel', 'MySQL', 'Tailwind CSS', 'Alpine.js', 'VPS', 'Tailscale', 'Hostinger', 'SSL'],
     highlight: 'Client Work',
     link: 'https://geta-app.tv',
@@ -150,7 +158,7 @@ const PROJECTS = [
     title: 'Resto Cafe System Infrastructure',
     subtitle: 'Laravel Full Stack · Client Work',
     desc: 'Aplikasi web enterprise dengan sistem Role-Based Access Control (RBAC) multi-level, dashboard admin yang kaya fitur, manajemen data dinamis dan visualisasi laporan via web interface. Source code bersifat confidential milik klien.',
-    tech: ['Laravel', 'MySQL', 'Tailwind CSS', 'Alpine.js','Hostinger', 'SSL'],
+    tech: ['Laravel', 'MySQL', 'Tailwind CSS', 'Alpine.js', 'Hostinger', 'SSL'],
     highlight: 'Client Work',
     link: 'https://legareca-space.id',
     github: null,
@@ -167,8 +175,7 @@ const SERVICES = [
 const STATS = [
   { num: '2025', label: 'S.Kom Graduate' },
   { num: '4+', label: 'Roles & Projects' },
-  { num: 'MVP', label: 'Basketball Award' },
-
+  { num: '4+', label: 'Roles & Projects' },
 ];
 
 const isTouchDevice = () =>
@@ -179,13 +186,25 @@ const isTouchDevice = () =>
 export default function App() {
   const [activeSection, setActiveSection] = useState('home');
   const [menuOpen, setMenuOpen] = useState(false);
-  const [feedbackText, setFeedbackText] = useState('');
-  const [feedbackSent, setFeedbackSent] = useState(false);
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
   const [hovering, setHovering] = useState(false);
   const [isTouch, setIsTouch] = useState(false);
   const [activeExpIndex, setActiveExpIndex] = useState(0);
   const [visibleSections, setVisibleSections] = useState(new Set(['home']));
+
+  // ── Contact Form State ──────────────────────────────────
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactSubject, setContactSubject] = useState('');
+  const [contactMsg, setContactMsg] = useState('');
+  const [contactSent, setContactSent] = useState(false);
+  const [contactLoading, setContactLoading] = useState(false);
+  const [contactError, setContactError] = useState('');
+
+  // ── Sidebar Feedback State ──────────────────────────────
+  const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackSent, setFeedbackSent] = useState(false);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
 
   const sections = ['home', 'about', 'services', 'skills', 'education', 'experience', 'projects', 'contact'];
 
@@ -229,16 +248,71 @@ export default function App() {
   const hoverOff = () => !isTouch && setHovering(false);
   const cur = isTouch ? 'pointer' : 'none';
 
-  const handleContact = (e) => {
+  /* ── Handle Contact Form Submit ───────────────────────── */
+  const handleContact = async (e) => {
     e.preventDefault();
-    if (feedbackText.trim()) {
-      setFeedbackSent(true);
-      setFeedbackText('');
-      setTimeout(() => setFeedbackSent(false), 3000);
+    if (!contactName || !contactEmail || !contactMsg) return;
+
+    setContactLoading(true);
+    setContactError('');
+
+    try {
+      await emailjs.send(
+        EJS_SERVICE,
+        EJS_TEMPLATE,
+        {
+          name: contactName,
+          email: contactEmail,
+          title: contactSubject || 'Tidak ada keperluan dipilih',
+          message: contactMsg,
+          time: new Date().toLocaleString('id-ID'),
+        },
+        EJS_KEY
+      );
+      setContactSent(true);
+      setContactName('');
+      setContactEmail('');
+      setContactSubject('');
+      setContactMsg('');
+      setTimeout(() => setContactSent(false), 5000);
+    } catch (err) {
+      setContactError('Gagal mengirim pesan. Silakan coba lagi.');
+      console.error('EmailJS error:', err);
+    } finally {
+      setContactLoading(false);
     }
   };
 
-  /* ── SVG Icons (reusable) ─────────────────────────────── */
+  /* ── Handle Sidebar Feedback Submit ──────────────────── */
+  const handleFeedback = async (e) => {
+    e.preventDefault();
+    if (!feedbackText.trim()) return;
+
+    setFeedbackLoading(true);
+    try {
+      await emailjs.send(
+        EJS_SERVICE,
+        EJS_FEEDBACK,
+        {
+          name: 'Anonymous (Sidebar)',
+          email: 'no-reply@portfolio.dev',
+          title: 'Sidebar Feedback',
+          message: feedbackText,
+          time: new Date().toLocaleString('id-ID'),
+        },
+        EJS_KEY
+      );
+      setFeedbackSent(true);
+      setFeedbackText('');
+      setTimeout(() => setFeedbackSent(false), 3000);
+    } catch (err) {
+      console.error('Feedback error:', err);
+    } finally {
+      setFeedbackLoading(false);
+    }
+  };
+
+  /* ── SVG Icons ────────────────────────────────────────── */
   const IconPhone = () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.16 6.16l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.92 17z" />
@@ -291,16 +365,30 @@ export default function App() {
               <span className="sc-icon">in</span> alexander-adma
             </a>
           </div>
+
+          {/* Sidebar Feedback Form */}
           <div className="feedback-box">
             <p className="feedback-label">Feedback~ Drop a Thought</p>
-            <form onSubmit={handleContact} className="feedback-form">
-              <textarea value={feedbackText} onChange={(e) => setFeedbackText(e.target.value)}
-                placeholder="Your thoughts..." className="feedback-input" rows={2} />
-              <button type="submit" className="feedback-send" onMouseEnter={hoverOn} onMouseLeave={hoverOff}>
-                {feedbackSent ? '✓ Sent' : 'Send'}
+            <form onSubmit={handleFeedback} className="feedback-form">
+              <textarea
+                value={feedbackText}
+                onChange={(e) => setFeedbackText(e.target.value)}
+                placeholder="Your thoughts..."
+                className="feedback-input"
+                rows={2}
+                disabled={feedbackLoading}
+              />
+              <button
+                type="submit"
+                className="feedback-send"
+                onMouseEnter={hoverOn} onMouseLeave={hoverOff}
+                disabled={feedbackLoading}
+              >
+                {feedbackLoading ? '...' : feedbackSent ? '✓ Sent' : 'Send'}
               </button>
             </form>
           </div>
+
           <p className="copyright">© 2025 Alexander Adma Karyadi</p>
         </div>
       </nav>
@@ -318,11 +406,7 @@ export default function App() {
       {/* ── MOBILE MENU ───────────────────────────────────── */}
       {menuOpen && (
         <div className="mobile-menu">
-          <button
-            className="mobile-logo"
-            onClick={() => scrollTo('home')}
-            style={{ cursor: 'pointer' }}
-          >
+          <button className="mobile-logo" onClick={() => scrollTo('home')} style={{ cursor: 'pointer' }}>
             <span className="logo-bracket">&lt;</span>AAK<span className="logo-bracket">/&gt;</span>
           </button>
 
@@ -339,37 +423,23 @@ export default function App() {
           <div className="mobile-divider" />
 
           <div className="mobile-actions">
-            <a
-              href="cv.pdf"
-              download="Alexander_Adma_Karyadi_CV.pdf"
-              className="mobile-action-btn primary"
-              onClick={() => setMenuOpen(false)}
-            >
+            <a href="cv.pdf" download="Alexander_Adma_Karyadi_CV.pdf" className="mobile-action-btn primary" onClick={() => setMenuOpen(false)}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                 <polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
               </svg>
               Download CV
             </a>
-            <a
-              href="https://wa.me/6282227175851"
-              target="_blank" rel="noreferrer"
-              className="mobile-action-btn wa"
-              onClick={() => setMenuOpen(false)}
-            >
+            <a href="https://wa.me/6282227175851" target="_blank" rel="noreferrer" className="mobile-action-btn wa" onClick={() => setMenuOpen(false)}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
               </svg>
               Chat WhatsApp
             </a>
-            <a href="mailto:alexadma16@gmail.com" className="mobile-action-btn outline">
-              ✉ Hire Me
-            </a>
+            <a href="mailto:alexadma16@gmail.com" className="mobile-action-btn outline">✉ Hire Me</a>
           </div>
 
-          <p className="mobile-contact-info">
-            alexadma16@gmail.com<br />0822-2717-5851
-          </p>
+          <p className="mobile-contact-info">alexadma16@gmail.com<br />0822-2717-5851</p>
         </div>
       )}
 
@@ -382,19 +452,16 @@ export default function App() {
             <div className="home-tag">
               <span className="tag-dot" /> Full Stack Developer · UI/UX Designer · Computer Vision Engineer
             </div>
-
             <h1 className="hero-name">
               # ALEXANDER<br />
               <span className="hero-accent">ADMA KARYADI.</span>
             </h1>
-
             <p className="hero-bio">
               Sarjana Informatika (2025) dari Universitas Sanata Dharma Yogyakarta.
               Saya membangun web application yang <em>scalable</em> dengan Laravel,
               merancang UI yang <em>intuitif</em> di Figma, dan mengimplementasikan
               sistem <em>Computer Vision</em> berbasis AI untuk kebutuhan industri nyata.
             </p>
-
             <div className="hero-meta">
               <span className="meta-item">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -408,15 +475,11 @@ export default function App() {
                 <span className="avail-dot-sm" /> Available for opportunities
               </span>
             </div>
-
             <div className="hero-cta">
-              <button className="btn-primary" onClick={() => scrollTo('projects')}
-                onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+              <button className="btn-primary" onClick={() => scrollTo('projects')} onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
                 View My Work →
               </button>
-
-              <a href="cv.pdf" download="Alexander_Adma_Karyadi_CV.pdf"
-                className="btn-cv" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+              <a href="cv.pdf" download="Alexander_Adma_Karyadi_CV.pdf" className="btn-cv" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                   <polyline points="7 10 12 15 17 10" />
@@ -424,13 +487,10 @@ export default function App() {
                 </svg>
                 Download CV
               </a>
-
-              <a href="mailto:alexadma16@gmail.com" className="btn-ghost"
-                onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+              <a href="mailto:alexadma16@gmail.com" className="btn-ghost" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
                 Hire Me
               </a>
             </div>
-
             <div className="stats-row">
               {STATS.map(({ num, label }) => (
                 <div key={label} className="stat-card">
@@ -476,7 +536,6 @@ export default function App() {
             <h2 className="section-title">About Me</h2>
             <div className="section-line" />
           </div>
-
           <div className="about-grid">
             <div className="about-text-col">
               <p className="about-lead">
@@ -503,33 +562,19 @@ export default function App() {
                 pengalaman memimpin organisasi kemahasiswaan mengajarkan saya bahwa teknologi harus
                 selalu memberikan nilai nyata bagi orang-orang yang menggunakannya.
               </p>
-
               <div className="about-values">
                 {[
-                  {
-                    icon: '⚡', title: 'Fast Learner',
-                    desc: 'Cepat beradaptasi dengan stack, tools, dan domain baru — dari Laravel ke YOLO, dari UI ke server config.'
-                  },
-                  {
-                    icon: '🎯', title: 'End-to-End Builder',
-                    desc: 'Terbiasa menangani proyek dari nol: desain, development, deployment, hingga troubleshooting hardware.'
-                  },
-                  {
-                    icon: '🤝', title: 'Leader & Collaborator',
-                    desc: 'Pernah memimpin koordinasi basket tingkat universitas — kolaborasi lintas divisi bukan hal asing.'
-                  },
+                  { icon: '⚡', title: 'Fast Learner', desc: 'Cepat beradaptasi dengan stack, tools, dan domain baru — dari Laravel ke YOLO, dari UI ke server config.' },
+                  { icon: '🎯', title: 'End-to-End Builder', desc: 'Terbiasa menangani proyek dari nol: desain, development, deployment, hingga troubleshooting hardware.' },
+                  { icon: '🤝', title: 'Leader & Collaborator', desc: 'Pernah memimpin koordinasi basket tingkat universitas — kolaborasi lintas divisi bukan hal asing.' },
                 ].map(v => (
                   <div key={v.title} className="value-item">
                     <span className="value-icon">{v.icon}</span>
-                    <div>
-                      <strong>{v.title}</strong>
-                      <p>{v.desc}</p>
-                    </div>
+                    <div><strong>{v.title}</strong><p>{v.desc}</p></div>
                   </div>
                 ))}
               </div>
             </div>
-
             <div className="about-sidebar">
               <div className="profile-card-box">
                 <div className="profile-avatar">
@@ -557,15 +602,13 @@ export default function App() {
                 </div>
                 <div className="profile-divider" />
                 <div className="profile-social">
-                  <a href="https://www.linkedin.com/in/alexander-adma" target="_blank" rel="noreferrer"
-                    className="social-btn" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                  <a href="https://www.linkedin.com/in/alexander-adma" target="_blank" rel="noreferrer" className="social-btn" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                     </svg>
                     LinkedIn
                   </a>
-                  <a href="mailto:alexadma16@gmail.com" className="social-btn"
-                    onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                  <a href="mailto:alexadma16@gmail.com" className="social-btn" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                       <polyline points="22,6 12,13 2,6" />
@@ -760,8 +803,7 @@ export default function App() {
                 </div>
                 <div className="project-links">
                   {p.github ? (
-                    <a href={p.github} target="_blank" rel="noreferrer" className="proj-link-btn ghost"
-                      onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                    <a href={p.github} target="_blank" rel="noreferrer" className="proj-link-btn ghost" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
                       </svg>
@@ -776,8 +818,7 @@ export default function App() {
                       Private
                     </span>
                   )}
-                  <a href={p.link} target="_blank" rel="noreferrer" className="proj-link-btn accent"
-                    onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                  <a href={p.link} target="_blank" rel="noreferrer" className="proj-link-btn accent" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
                     {p.github ? 'View →' : 'Live Site →'}
                   </a>
                 </div>
@@ -803,10 +844,8 @@ export default function App() {
                 Apabila Anda memiliki posisi relevan, proyek menarik, atau ingin berdiskusi — jangan
                 ragu menghubungi saya. Inbox saya selalu terbuka!
               </p>
-
               <div className="contact-info-cards">
-                <a href="mailto:alexadma16@gmail.com" className="cic"
-                  onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                <a href="mailto:alexadma16@gmail.com" className="cic" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
                   <div className="cic-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
@@ -819,9 +858,7 @@ export default function App() {
                   </div>
                   <span className="cic-arrow">↗</span>
                 </a>
-
-                <a href="https://www.linkedin.com/in/alexander-adma" target="_blank" rel="noreferrer"
-                  className="cic" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                <a href="https://www.linkedin.com/in/alexander-adma" target="_blank" rel="noreferrer" className="cic" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
                   <div className="cic-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
@@ -833,19 +870,8 @@ export default function App() {
                   </div>
                   <span className="cic-arrow">↗</span>
                 </a>
-
-                <a
-                  href="https://wa.me/6282227175851"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="cic"
-                  onMouseEnter={hoverOn}
-                  onMouseLeave={hoverOff}
-                  style={{ cursor: cur }}
-                >
-                  <div className="cic-icon">
-                    <IconPhone />
-                  </div>
+                <a href="https://wa.me/6282227175851" target="_blank" rel="noreferrer" className="cic" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                  <div className="cic-icon"><IconPhone /></div>
                   <div className="cic-body">
                     <div className="cic-label">WhatsApp / Phone</div>
                     <div className="cic-value">0822-2717-5851</div>
@@ -862,16 +888,38 @@ export default function App() {
                   <div className="cf-row">
                     <div className="cf-group">
                       <label className="cf-label">Nama</label>
-                      <input type="text" className="cf-input" placeholder="Nama Anda" required />
+                      <input
+                        type="text"
+                        className="cf-input"
+                        placeholder="Nama Anda"
+                        value={contactName}
+                        onChange={(e) => setContactName(e.target.value)}
+                        required
+                        disabled={contactLoading}
+                      />
                     </div>
                     <div className="cf-group">
                       <label className="cf-label">Email</label>
-                      <input type="email" className="cf-input" placeholder="email@perusahaan.com" required />
+                      <input
+                        type="email"
+                        className="cf-input"
+                        placeholder="email@perusahaan.com"
+                        value={contactEmail}
+                        onChange={(e) => setContactEmail(e.target.value)}
+                        required
+                        disabled={contactLoading}
+                      />
                     </div>
                   </div>
                   <div className="cf-group">
                     <label className="cf-label">Keperluan</label>
-                    <select className="cf-input cf-select" style={{ cursor: cur }}>
+                    <select
+                      className="cf-input cf-select"
+                      value={contactSubject}
+                      onChange={(e) => setContactSubject(e.target.value)}
+                      style={{ cursor: cur }}
+                      disabled={contactLoading}
+                    >
                       <option value="">Pilih keperluan...</option>
                       <option>Full Stack Developer</option>
                       <option>UI/UX Designer Position</option>
@@ -882,14 +930,32 @@ export default function App() {
                   </div>
                   <div className="cf-group">
                     <label className="cf-label">Pesan</label>
-                    <textarea className="cf-input cf-textarea"
+                    <textarea
+                      className="cf-input cf-textarea"
                       placeholder="Halo Alex, saya tertarik untuk..."
-                      rows={5} value={feedbackText}
-                      onChange={(e) => setFeedbackText(e.target.value)} required />
+                      rows={5}
+                      value={contactMsg}
+                      onChange={(e) => setContactMsg(e.target.value)}
+                      required
+                      disabled={contactLoading}
+                    />
                   </div>
-                  <button type="submit" className="cf-submit"
-                    onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
-                    {feedbackSent ? '✓ Pesan Terkirim!' : 'Kirim Pesan →'}
+
+                  {/* Error message */}
+                  {contactError && (
+                    <p style={{ color: '#ff6b6b', fontFamily: 'var(--mono)', fontSize: '0.75rem', marginTop: '-0.25rem' }}>
+                      ✕ {contactError}
+                    </p>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="cf-submit"
+                    onMouseEnter={hoverOn} onMouseLeave={hoverOff}
+                    style={{ cursor: cur, opacity: contactLoading ? 0.7 : 1 }}
+                    disabled={contactLoading}
+                  >
+                    {contactLoading ? 'Mengirim...' : contactSent ? '✓ Pesan Terkirim!' : 'Kirim Pesan →'}
                   </button>
                 </form>
               </div>
@@ -898,7 +964,7 @@ export default function App() {
 
           <div className="footer-strip">
             <span>© 2025 Alexander Adma Karyadi · All Rights Reserved</span>
-            <span>Built with React in Yogyakarta 🇮🇩</span>
+            <span>Built with React in Kota Sukabumi 🇮🇩</span>
           </div>
         </section>
 
