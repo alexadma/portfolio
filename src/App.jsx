@@ -175,7 +175,7 @@ const SERVICES = [
 const STATS = [
   { num: '2025', label: 'S.Kom Graduate' },
   { num: '4+', label: 'Roles & Projects' },
-  { num: '4+', label: 'Roles & Projects' },
+  { num: '1+', label: 'Years of Work Experience' },
 ];
 
 const isTouchDevice = () =>
