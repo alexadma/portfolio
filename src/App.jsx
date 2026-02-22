@@ -3,7 +3,6 @@ import emailjs from '@emailjs/browser';
 import './styles.css';
 
 // ─── EMAILJS CONFIG ─────────────────────────────────────────────────
-// Ganti dengan kredensial EmailJS kamu:
 const EJS_SERVICE = 'service_nqe11s2';   // Service ID
 const EJS_TEMPLATE = 'template_1welqjv';  // Template ID (Contact Form)
 const EJS_FEEDBACK = 'template_1welqjv';  // Template ID (Sidebar Feedback) — bisa sama
@@ -120,8 +119,8 @@ const PROJECTS = [
     desc: 'Sistem deteksi dan penghitungan skor bola basket secara real-time menggunakan YOLO. Model dilatih dengan dataset custom dari Roboflow dan diimplementasikan dengan OpenCV untuk analisis video live maupun rekaman, tanpa memerlukan operator manual.',
     tech: ['Python', 'YOLO', 'OpenCV', 'Roboflow', 'Deep Learning'],
     highlight: 'Thesis',
-    link: 'https://github.com/alexadma/proyek-rent-mobil',
-    github: 'https://github.com/alexadma/proyek-rent-mobil',
+    link: 'https://github.com/alexadma/AI-Computer-Vision',
+    github: 'https://github.com/alexadma/AI-Computer-Vision',
   },
   {
     num: '02',
@@ -130,7 +129,7 @@ const PROJECTS = [
     desc: 'Website portofolio personal yang dibangun dengan React, menampilkan proyek, pengalaman, dan keahlian secara interaktif. Dilengkapi custom cursor, animasi scroll reveal, sidebar navigasi responsif, dan mobile menu — didesain dengan pendekatan developer-aesthetic.',
     tech: ['React', 'JavaScript', 'CSS', 'Vite', 'Responsive Design'],
     highlight: 'Open Source',
-    link: 'https://github.com/alexadma/portfolio',
+    link: 'https://alexander-adma.vercel.app/',
     github: 'https://github.com/alexadma/portfolio',
   },
   {
