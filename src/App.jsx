@@ -3,10 +3,10 @@ import emailjs from '@emailjs/browser';
 import './styles.css';
 
 // ─── EMAILJS CONFIG ─────────────────────────────────────────────────
-const EJS_SERVICE = 'service_nqe11s2';   // Service ID
-const EJS_TEMPLATE = 'template_1welqjv';  // Template ID (Contact Form)
-const EJS_FEEDBACK = 'template_1welqjv';  // Template ID (Sidebar Feedback) — bisa sama
-const EJS_KEY = 'ZWD3pIbVpDewDruZt';  // Public Key
+const EJS_SERVICE = 'service_nqe11s2';
+const EJS_TEMPLATE = 'template_1welqjv';
+const EJS_FEEDBACK = 'template_1welqjv';
+const EJS_KEY = 'ZWD3pIbVpDewDruZt';
 
 /* ─── DATA ────────────────────────────────────────────────────────── */
 const SKILLS = {
@@ -139,8 +139,9 @@ const PROJECTS = [
     desc: 'Website rental mobil dengan sistem booking dan manajemen mobil berbasis Laravel. Dilengkapi fitur login, dashboard admin, dan integrasi payment gateway.',
     tech: ['Laravel', 'MySQL', 'PHP', 'Tailwind CSS', 'Alpine.js'],
     highlight: 'Open Source',
-    link: 'https://github.com/alexadma/proyek-rent-mobil',
+    link: null,
     github: 'https://github.com/alexadma/proyek-rent-mobil',
+    linkLabel: 'in repair',
   },
   {
     num: '04',
@@ -191,7 +192,6 @@ export default function App() {
   const [activeExpIndex, setActiveExpIndex] = useState(0);
   const [visibleSections, setVisibleSections] = useState(new Set(['home']));
 
-  // ── Contact Form State ──────────────────────────────────
   const [contactName, setContactName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
   const [contactSubject, setContactSubject] = useState('');
@@ -200,14 +200,12 @@ export default function App() {
   const [contactLoading, setContactLoading] = useState(false);
   const [contactError, setContactError] = useState('');
 
-  // ── Sidebar Feedback State ──────────────────────────────
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
 
   const sections = ['home', 'about', 'services', 'skills', 'education', 'experience', 'projects', 'contact'];
 
-  /* ── Effects ──────────────────────────────────────────── */
   useEffect(() => { setIsTouch(isTouchDevice()); }, []);
 
   useEffect(() => {
@@ -236,7 +234,6 @@ export default function App() {
     return () => observer.disconnect();
   }, []);
 
-  /* ── Helpers ──────────────────────────────────────────── */
   const scrollTo = useCallback((id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     setMenuOpen(false);
@@ -247,7 +244,6 @@ export default function App() {
   const hoverOff = () => !isTouch && setHovering(false);
   const cur = isTouch ? 'pointer' : 'none';
 
-  /* ── Handle Contact Form Submit ───────────────────────── */
   const handleContact = async (e) => {
     e.preventDefault();
     if (!contactName || !contactEmail || !contactMsg) return;
@@ -282,7 +278,6 @@ export default function App() {
     }
   };
 
-  /* ── Handle Sidebar Feedback Submit ──────────────────── */
   const handleFeedback = async (e) => {
     e.preventDefault();
     if (!feedbackText.trim()) return;
@@ -311,18 +306,15 @@ export default function App() {
     }
   };
 
-  /* ── SVG Icons ────────────────────────────────────────── */
   const IconPhone = () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.16 6.16l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.92 17z" />
     </svg>
   );
 
-  /* ─────────────────── RENDER ──────────────────────────── */
   return (
     <div className="app">
 
-      {/* Custom cursor — desktop only */}
       {!isTouch && (
         <div
           className={`custom-cursor ${hovering ? 'hovering' : ''}`}
@@ -365,7 +357,6 @@ export default function App() {
             </a>
           </div>
 
-          {/* Sidebar Feedback Form */}
           <div className="feedback-box">
             <p className="feedback-label">Feedback~ Drop a Thought</p>
             <form onSubmit={handleFeedback} className="feedback-form">
@@ -500,7 +491,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Desktop deco */}
           <div className="home-deco">
             <div className="deco-ring r1" />
             <div className="deco-ring r2" />
@@ -817,9 +807,15 @@ export default function App() {
                       Private
                     </span>
                   )}
-                  <a href={p.link} target="_blank" rel="noreferrer" className="proj-link-btn accent" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
-                    {p.github ? 'View →' : 'Live Site →'}
-                  </a>
+                  {p.link ? (
+                    <a href={p.link} target="_blank" rel="noreferrer" className="proj-link-btn accent" onMouseEnter={hoverOn} onMouseLeave={hoverOff} style={{ cursor: cur }}>
+                      {p.linkLabel || (p.github ? 'View →' : 'Live Site →')}
+                    </a>
+                  ) : p.linkLabel ? (
+                    <span className="proj-link-btn accent" style={{ opacity: 0.6, cursor: 'default' }}>
+                      {p.linkLabel}
+                    </span>
+                  ) : null}
                 </div>
               </div>
             ))}
@@ -940,7 +936,6 @@ export default function App() {
                     />
                   </div>
 
-                  {/* Error message */}
                   {contactError && (
                     <p style={{ color: '#ff6b6b', fontFamily: 'var(--mono)', fontSize: '0.75rem', marginTop: '-0.25rem' }}>
                       ✕ {contactError}
