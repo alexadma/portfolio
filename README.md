@@ -39,65 +39,6 @@ Website ini adalah portofolio personal milik **Alexander Adma Karyadi** — Sarj
 
 ---
 
-## 📂 Struktur Proyek
-
-```
-portfolio/
-├── public/
-│   ├── FotoPP.jpg          # Foto profil
-│   └── cv.pdf              # File CV untuk download
-├── src/
-│   ├── App.jsx             # Komponen utama (semua section)
-│   ├── Intro.jsx           # Komponen intro / loading screen
-│   ├── styles.css          # Global stylesheet
-│   └── main.jsx            # Entry point React
-├── index.html
-├── vite.config.js
-└── package.json
-```
-
----
-
-## 📄 Section Halaman
-
-| # | Section | Deskripsi |
-|---|---|---|
-| — | **Intro** | Typewriter animation sebelum masuk halaman |
-| 01 | **Home** | Hero section dengan nama, bio, CTA, dan code block dekoratif |
-| 02 | **About** | Deskripsi diri, nilai-nilai, dan profile card |
-| 03 | **Services** | Layanan yang ditawarkan (4 kategori) |
-| 04 | **Skills** | Progress bar skill per kategori teknologi |
-| 05 | **Education** | Detail pendidikan S1 + skripsi + pencapaian organisasi |
-| 06 | **Experience** | Tab panel pengalaman kerja (5 role) |
-| 07 | **Projects** | Grid kartu proyek dengan link GitHub/Live |
-| 08 | **Contact** | Form kontak + info kontak langsung |
-
----
-
-## 🚀 Cara Menjalankan Lokal
-
-```bash
-# Clone repo
-git clone https://github.com/alexadma/portfolio.git
-cd portfolio
-
-# Install dependencies
-npm install
-
-# Jalankan dev server
-npm run dev
-```
-
-Buka [http://localhost:5173](http://localhost:5173) di browser.
-
-### Build untuk Production
-
-```bash
-npm run build
-```
-
----
-
 ## ⚙️ Konfigurasi EmailJS
 
 Form kontak dan feedback menggunakan [EmailJS](https://www.emailjs.com/). Untuk setup sendiri:
@@ -106,38 +47,6 @@ Form kontak dan feedback menggunakan [EmailJS](https://www.emailjs.com/). Untuk 
 2. Buat **Email Service** dan **Email Template**
 3. Update konstanta berikut di `src/App.jsx`:
 
-```js
-const EJS_SERVICE  = 'your_service_id';
-const EJS_TEMPLATE = 'your_template_id';
-const EJS_KEY      = 'your_public_key';
-```
-
----
-
-## 🎨 Design System
-
-| Token | Nilai |
-|---|---|
-| Background | `#080808` |
-| Accent | `#c8f04a` (Lime Green) |
-| Text | `#ebebeb` |
-| Text Dim | `#a0a0a0` |
-| Font Mono | Space Mono |
-| Font Sans | Syne |
-
----
-
-## 📱 Responsivitas
-
-| Breakpoint | Layout |
-|---|---|
-| `> 1100px` | Full sidebar + 2-column grids |
-| `900px – 1100px` | Sidebar tersembunyi, layout 1-column |
-| `< 900px` | Hamburger menu, experience tabs horizontal scroll |
-| `< 600px` | Full mobile: stacked buttons, single column semua |
-| `< 380px` | Extra kecil: font size dikurangi lagi |
-
----
 
 ## 📜 Lisensi
 
@@ -155,4 +64,3 @@ Jika menggunakannya, credit ke [Alexander Adma Karyadi](https://alexander-adma.v
 
 ---
 
-*Built with React in Kota Sukabumi 🇮🇩*
