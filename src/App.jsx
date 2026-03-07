@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import emailjs from '@emailjs/browser';
 import './styles.css';
 
@@ -126,7 +126,7 @@ const PROJECTS = [
     num: '02',
     title: 'Personal Portfolio Website',
     subtitle: 'React · UI/UX Design · Open Source',
-    desc: 'Website portofolio personal yang dibangun dengan React, menampilkan proyek, pengalaman, dan keahlian secara interaktif. Dilengkapi custom cursor, animasi scroll reveal, sidebar navigasi responsif, dan mobile menu — didesain dengan pendekatan developer-aesthetic.',
+    desc: 'Website portofolio personal yang dibangun dengan React, menampilkan proyek, pengalaman, dan keahlian secara interaktif. Dilengkapi custom cursor, animasi scroll reveal, sidebar navigasi responsif, dan mobile menu didesain dengan pendekatan developer-aesthetic.',
     tech: ['React', 'JavaScript', 'CSS', 'Vite', 'Responsive Design'],
     highlight: 'Open Source',
     link: 'https://alexander-adma.vercel.app/',
@@ -166,9 +166,9 @@ const PROJECTS = [
 ];
 
 const SERVICES = [
-  { icon: '⚙️', title: 'Full Stack Web Development', desc: 'Membangun aplikasi web end-to-end dengan Laravel & MySQL — arsitektur solid, backend scalable, dan frontend responsif yang siap production.' },
+  { icon: '⚙️', title: 'Full Stack Web Development', desc: 'Membangun aplikasi web end-to-end dengan Laravel & MySQL arsitektur solid, backend scalable, dan frontend responsif yang siap production.' },
   { icon: '🧠', title: 'Computer Vision & AI', desc: 'Implementasi sistem deteksi objek real-time dan klasifikasi visual menggunakan YOLO dan deep learning untuk otomasi dan analisis visual.' },
-  { icon: '🎨', title: 'UI/UX Design (Figma)', desc: 'Merancang pengalaman pengguna intuitif dan visual profesional — dari wireframe, User Flow, hingga prototipe interaktif siap handoff.' },
+  { icon: '🎨', title: 'UI/UX Design (Figma)', desc: 'Merancang pengalaman pengguna intuitif dan visual profesional dari wireframe, User Flow, hingga prototipe interaktif siap handoff.' },
   { icon: '🖥️', title: 'Server & Deployment', desc: 'Setup VPS Linux, konfigurasi & SSL, deployment Laravel, manajemen domain, dan integrasi jaringan aman menggunakan Tailscale.' },
 ];
 
@@ -176,6 +176,34 @@ const STATS = [
   { num: '2025', label: 'S.Kom Graduate' },
   { num: '4+', label: 'Roles & Projects' },
   { num: '1+', label: 'Years of Work Experience' },
+];
+
+// ─── THESIS DEMO VIDEOS ─────────────────────────────────────────────
+const THESIS_VIDEOS = [
+  {
+    id: 'q__Yi-kaCfA',
+    model: 'YOLOv8m',
+    config: 'SGD · lr=0.0001 · m=0.999',
+    badge: 'v8',
+  },
+  {
+    id: 'UFADDCNM1QI',
+    model: 'YOLOv8m',
+    config: 'SGD · lr=0.01 · m=0.937',
+    badge: 'v8',
+  },
+  {
+    id: 'zr9qI1wKQLY',
+    model: 'YOLOv9m',
+    config: 'SGD · lr=0.0001 · m=0.999',
+    badge: 'v9',
+  },
+  {
+    id: 'yrcvjhXfmmY',
+    model: 'YOLOv9m',
+    config: 'SGD · lr=0.01 · m=0.937',
+    badge: 'v9',
+  },
 ];
 
 const isTouchDevice = () =>
@@ -191,6 +219,7 @@ export default function App() {
   const [isTouch, setIsTouch] = useState(false);
   const [activeExpIndex, setActiveExpIndex] = useState(0);
   const [visibleSections, setVisibleSections] = useState(new Set(['home']));
+  const [activeVideoIndex, setActiveVideoIndex] = useState(0);
 
   const [contactName, setContactName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
@@ -203,6 +232,10 @@ export default function App() {
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
+
+  // ─── Ref for experience tabs scrolling (mobile fix) ──────────────
+  const expTabsRef = useRef(null);
+  const expTabRefs = useRef([]);
 
   const sections = ['home', 'about', 'services', 'skills', 'education', 'experience', 'projects', 'contact'];
 
@@ -239,6 +272,21 @@ export default function App() {
     setMenuOpen(false);
   }, []);
 
+  // ─── Scroll active experience tab to center on mobile ────────────
+  const handleExpTabClick = useCallback((index) => {
+    setActiveExpIndex(index);
+    // Scroll the clicked tab into center view on mobile
+    const tabEl = expTabRefs.current[index];
+    const containerEl = expTabsRef.current;
+    if (tabEl && containerEl) {
+      const containerWidth = containerEl.offsetWidth;
+      const tabLeft = tabEl.offsetLeft;
+      const tabWidth = tabEl.offsetWidth;
+      const scrollTarget = tabLeft - containerWidth / 2 + tabWidth / 2;
+      containerEl.scrollTo({ left: scrollTarget, behavior: 'smooth' });
+    }
+  }, []);
+
   const isVis = (id) => visibleSections.has(id);
   const hoverOn = () => !isTouch && setHovering(true);
   const hoverOff = () => !isTouch && setHovering(false);
@@ -247,28 +295,18 @@ export default function App() {
   const handleContact = async (e) => {
     e.preventDefault();
     if (!contactName || !contactEmail || !contactMsg) return;
-
     setContactLoading(true);
     setContactError('');
-
     try {
-      await emailjs.send(
-        EJS_SERVICE,
-        EJS_TEMPLATE,
-        {
-          name: contactName,
-          email: contactEmail,
-          title: contactSubject || 'Tidak ada keperluan dipilih',
-          message: contactMsg,
-          time: new Date().toLocaleString('id-ID'),
-        },
-        EJS_KEY
-      );
+      await emailjs.send(EJS_SERVICE, EJS_TEMPLATE, {
+        name: contactName,
+        email: contactEmail,
+        title: contactSubject || 'Tidak ada keperluan dipilih',
+        message: contactMsg,
+        time: new Date().toLocaleString('id-ID'),
+      }, EJS_KEY);
       setContactSent(true);
-      setContactName('');
-      setContactEmail('');
-      setContactSubject('');
-      setContactMsg('');
+      setContactName(''); setContactEmail(''); setContactSubject(''); setContactMsg('');
       setTimeout(() => setContactSent(false), 5000);
     } catch (err) {
       setContactError('Gagal mengirim pesan. Silakan coba lagi.');
@@ -281,21 +319,15 @@ export default function App() {
   const handleFeedback = async (e) => {
     e.preventDefault();
     if (!feedbackText.trim()) return;
-
     setFeedbackLoading(true);
     try {
-      await emailjs.send(
-        EJS_SERVICE,
-        EJS_FEEDBACK,
-        {
-          name: 'Anonymous (Sidebar)',
-          email: 'no-reply@portfolio.dev',
-          title: 'Sidebar Feedback',
-          message: feedbackText,
-          time: new Date().toLocaleString('id-ID'),
-        },
-        EJS_KEY
-      );
+      await emailjs.send(EJS_SERVICE, EJS_FEEDBACK, {
+        name: 'Anonymous (Sidebar)',
+        email: 'no-reply@portfolio.dev',
+        title: 'Sidebar Feedback',
+        message: feedbackText,
+        time: new Date().toLocaleString('id-ID'),
+      }, EJS_KEY);
       setFeedbackSent(true);
       setFeedbackText('');
       setTimeout(() => setFeedbackSent(false), 3000);
@@ -312,6 +344,8 @@ export default function App() {
     </svg>
   );
 
+  const activeVideo = THESIS_VIDEOS[activeVideoIndex];
+
   return (
     <div className="app">
 
@@ -327,11 +361,9 @@ export default function App() {
         <button className="sidebar-logo" onClick={() => scrollTo('home')}>
           <span className="logo-bracket">&lt;</span>MY PORTOFOLIO<span className="logo-bracket">/&gt;</span>
         </button>
-
         <div className="availability-badge">
           <span className="avail-dot" /><span>Open to Work</span>
         </div>
-
         <ul className="nav-links">
           {sections.map((s) => (
             <li key={s}>
@@ -345,7 +377,6 @@ export default function App() {
             </li>
           ))}
         </ul>
-
         <div className="sidebar-footer">
           <div className="sidebar-contacts">
             <a href="mailto:alexadma16@gmail.com" className="sidebar-contact-link" onMouseEnter={hoverOn} onMouseLeave={hoverOff}>
@@ -356,7 +387,6 @@ export default function App() {
               <span className="sc-icon">in</span> alexander-adma
             </a>
           </div>
-
           <div className="feedback-box">
             <p className="feedback-label">Feedback~ Drop a Thought</p>
             <form onSubmit={handleFeedback} className="feedback-form">
@@ -368,17 +398,13 @@ export default function App() {
                 rows={2}
                 disabled={feedbackLoading}
               />
-              <button
-                type="submit"
-                className="feedback-send"
+              <button type="submit" className="feedback-send"
                 onMouseEnter={hoverOn} onMouseLeave={hoverOff}
-                disabled={feedbackLoading}
-              >
+                disabled={feedbackLoading}>
                 {feedbackLoading ? '...' : feedbackSent ? '✓ Sent' : 'Send'}
               </button>
             </form>
           </div>
-
           <p className="copyright">© 2025 Alexander Adma Karyadi</p>
         </div>
       </nav>
@@ -399,19 +425,15 @@ export default function App() {
           <button className="mobile-logo" onClick={() => scrollTo('home')} style={{ cursor: 'pointer' }}>
             <span className="logo-bracket">&lt;</span>AAK<span className="logo-bracket">/&gt;</span>
           </button>
-
           <div className="availability-badge" style={{ marginBottom: '0.25rem' }}>
             <span className="avail-dot" /><span>Open to Work</span>
           </div>
-
           {sections.map((s) => (
             <button key={s} className="mobile-nav-link" onClick={() => scrollTo(s)} style={{ cursor: 'pointer' }}>
               <span style={{ color: 'var(--accent)' }}>#</span>{s}
             </button>
           ))}
-
           <div className="mobile-divider" />
-
           <div className="mobile-actions">
             <a href="cv.pdf" download="Alexander_Adma_Karyadi_CV.pdf" className="mobile-action-btn primary" onClick={() => setMenuOpen(false)}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -428,7 +450,6 @@ export default function App() {
             </a>
             <a href="mailto:alexadma16@gmail.com" className="mobile-action-btn outline">✉ Hire Me</a>
           </div>
-
           <p className="mobile-contact-info">alexadma16@gmail.com<br />0822-2717-5851</p>
         </div>
       )}
@@ -490,7 +511,6 @@ export default function App() {
               ))}
             </div>
           </div>
-
           <div className="home-deco">
             <div className="deco-ring r1" />
             <div className="deco-ring r2" />
@@ -502,18 +522,18 @@ export default function App() {
                 <span className="cb-file">alex.py</span>
               </div>
               <pre className="code-block-body">{`class AlexanderAdma:
-    name     = "Alexander Adma Karyadi"
-    degree   = "S.Kom Informatika (2025)"
-    stack    = ["Laravel", "Python", "MySQL"]
-    ai_focus = "Computer Vision (YOLO)"
-    design   = "Figma UI/UX"
-    location = "Kota Sukabumi, Indonesia"
-    
-    def is_available(self):
-        return True  # Always open!
-    
-    def contact(self):
-        return "alexadma16@gmail.com"`}</pre>
+ name = "Alexander Adma Karyadi"
+ degree = "S.Kom Informatika (2025)"
+ stack = ["Laravel", "Python", "MySQL"]
+ ai_focus = "Computer Vision (YOLO)"
+ design = "Figma UI/UX"
+ location = "Kota Sukabumi, Indonesia"
+ 
+ def is_available(self):
+ return True # Always open!
+ 
+ def contact(self):
+ return "alexadma16@gmail.com"`}</pre>
             </div>
           </div>
         </section>
@@ -528,34 +548,34 @@ export default function App() {
           <div className="about-grid">
             <div className="about-text-col">
               <p className="about-lead">
-                Halo! Saya <strong>Alexander Adma Karyadi</strong> — Sarjana Informatika yang
+                Halo! Saya <strong>Alexander Adma Karyadi</strong> Sarjana Informatika yang
                 terjun dalam bidang <em>Full Stack Development</em> dan kecerdasan buatan
                 berbasis <em>Computer Vision</em>.
               </p>
               <p>
                 Di <strong>Universitas Sanata Dharma Yogyakarta</strong>, saya tidak hanya membangun
-                fondasi teknis yang solid — saya juga membuktikannya. Skripsi saya mengimplementasikan
+                fondasi teknis yang solid saya juga membuktikannya. Skripsi saya mengimplementasikan
                 <strong> AI Computer Vision berbasis YOLO</strong> untuk mendeteksi bola basket dan
                 menghitung skor secara otomatis, tanpa operator manual. Dari data processing hingga
-                deployment model deep learning — semuanya saya kerjakan end-to-end.
+                deployment model deep learning semuanya saya kerjakan end-to-end.
               </p>
               <p>
                 Saat ini saya aktif sebagai <strong>Full Stack Developer</strong> dan <strong>UI/UX
-                  Designer</strong> — membangun sistem web enterprise berbasis Laravel, merancang user
+                  Designer</strong> membangun sistem web enterprise berbasis Laravel, merancang user
                 flow di Figma, dan mengelola infrastruktur server pada VPS. Saya terbiasa menangani
                 keseluruhan siklus: dari wireframe hingga deployment, dari query database hingga
                 konfigurasi server dan jaringan.
               </p>
               <p>
-                Saya percaya <em>kode terbaik lahir dari empati terhadap pengguna</em> — dan
+                Saya percaya <em>kode terbaik lahir dari empati terhadap pengguna</em> dan
                 pengalaman memimpin organisasi kemahasiswaan mengajarkan saya bahwa teknologi harus
                 selalu memberikan nilai nyata bagi orang-orang yang menggunakannya.
               </p>
               <div className="about-values">
                 {[
-                  { icon: '⚡', title: 'Fast Learner', desc: 'Cepat beradaptasi dengan stack, tools, dan domain baru — dari Laravel ke YOLO, dari UI ke server config.' },
+                  { icon: '⚡', title: 'Fast Learner', desc: 'Cepat beradaptasi dengan stack, tools, dan domain baru dari Laravel ke YOLO, dari UI ke server config.' },
                   { icon: '🎯', title: 'End-to-End Builder', desc: 'Terbiasa menangani proyek dari nol: desain, development, deployment, hingga troubleshooting hardware.' },
-                  { icon: '🤝', title: 'Leader & Collaborator', desc: 'Pernah memimpin koordinasi basket tingkat universitas — kolaborasi lintas divisi bukan hal asing.' },
+                  { icon: '🤝', title: 'Leader & Collaborator', desc: 'Pernah memimpin koordinasi basket tingkat universitas kolaborasi lintas divisi bukan hal asing.' },
                 ].map(v => (
                   <div key={v.title} className="value-item">
                     <span className="value-icon">{v.icon}</span>
@@ -581,7 +601,6 @@ export default function App() {
                     ['Status', 'Fresh Graduate (2025)'],
                     ['Location', 'Yogyakarta, Indonesia'],
                     ['Email', 'alexadma16@gmail.com'],
-                    ['Phone', '0822-2717-5851'],
                   ].map(([k, v]) => (
                     <div key={k} className="pil-item">
                       <span className="pil-key">{k}</span>
@@ -617,7 +636,7 @@ export default function App() {
             <h2 className="section-title">What I Do</h2>
             <div className="section-line" />
           </div>
-          <p className="section-intro">Saya menawarkan solusi digital menyeluruh — dari ideasi, desain, development, hingga deployment.</p>
+          <p className="section-intro">Saya menawarkan solusi digital menyeluruh dari ideasi, desain, development, hingga deployment.</p>
           <div className="services-grid">
             {SERVICES.map((s, i) => (
               <div key={i} className="service-card" onMouseEnter={hoverOn} onMouseLeave={hoverOff}>
@@ -675,6 +694,7 @@ export default function App() {
               </div>
               <span className="edu-period-badge">Aug 2021 – Aug 2025</span>
             </div>
+            {/* Top row: thesis info left · achievements right */}
             <div className="edu-body">
               <div className="edu-thesis-box">
                 <div className="edu-thesis-label">
@@ -701,12 +721,12 @@ export default function App() {
                 <div className="edu-act-title">Organizational Achievements</div>
                 <div className="edu-act-grid">
                   {[
-                    { icon: '🏀', text: 'MVP Basketball — Ngejaman Cup 3.0' },
-                    { icon: '🥇', text: 'Juara 1 — 3x3 Basketball Ngejaman Cup 3.0' },
-                    { icon: '🎮', text: 'Juara 2 — E-sport Valorant tingkat Fakultas' },
-                    { icon: '👥', text: 'Coordinator UKM Basket — Universitas Sanata Dharma (2023–2024)' },
-                    { icon: '🏆', text: 'Coordinator Acara — Turnamen Basket antar Fakultas (2023)' },
-                    { icon: '📋', text: 'Divisi Humas — Dialog Orang Tua FST (2023)' },
+                    { icon: '🏀', text: 'MVP Basketball Ngejaman Cup 3.0' },
+                    { icon: '🥇', text: 'Juara 1 3x3 Basketball Ngejaman Cup 3.0' },
+                    { icon: '🎮', text: 'Juara 2 E-sport Valorant tingkat Fakultas' },
+                    { icon: '👥', text: 'Coordinator UKM Basket Universitas Sanata Dharma (2023–2024)' },
+                    { icon: '🏆', text: 'Coordinator Acara Turnamen Basket antar Fakultas (2023)' },
+                    { icon: '📋', text: 'Divisi Humas Dialog Orang Tua FST (2023)' },
                     { icon: '📚', text: 'Aktif mengikuti seminar & workshop teknologi nasional' },
                   ].map((a, i) => (
                     <div key={i} className="edu-act-item">
@@ -714,6 +734,59 @@ export default function App() {
                       <span>{a.text}</span>
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+
+            {/* ── THESIS DEMO VIDEOS — full width below ── */}
+            <div className="tv-section">
+              <div className="tv-section-label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polygon points="23 7 16 12 23 17 23 7" />
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                </svg>
+                YOLO Object Detection — Thesis Results
+              </div>
+              {/* Tabs left · Player right */}
+              <div className="tv-body">
+                <div className="tv-tabs">
+                  {THESIS_VIDEOS.map((v, i) => (
+                    <button
+                      key={v.id}
+                      className={`tv-tab ${activeVideoIndex === i ? 'active' : ''}`}
+                      onClick={() => setActiveVideoIndex(i)}
+                      onMouseEnter={hoverOn} onMouseLeave={hoverOff}
+                      style={{ cursor: cur }}
+                    >
+                      <span className={`tv-tab-badge badge-${v.badge}`}>{v.model}</span>
+                      <span className="tv-tab-config">{v.config}</span>
+                    </button>
+                  ))}
+                </div>
+                <div className="tv-player-wrap">
+                  <div className="tv-player-header">
+                    <span className="tv-player-dot" />
+                    <span className="tv-player-title">{activeVideo.model} · {activeVideo.config}</span>
+                    <a
+                      href={`https://youtube.com/shorts/${activeVideo.id}`}
+                      target="_blank" rel="noreferrer"
+                      className="tv-yt-link"
+                      onMouseEnter={hoverOn} onMouseLeave={hoverOff}
+                      style={{ cursor: cur }}
+                    >
+                      ↗ YouTube
+                    </a>
+                  </div>
+                  <div className="tv-embed-shorts">
+                    <iframe
+                      key={activeVideo.id}
+                      src={`https://www.youtube.com/embed/${activeVideo.id}?rel=0&modestbranding=1`}
+                      title={`${activeVideo.model} ${activeVideo.config}`}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -728,11 +801,13 @@ export default function App() {
             <div className="section-line" />
           </div>
           <div className="exp-layout">
-            <div className="exp-tabs">
+            {/* ─── TABS with ref for mobile scroll-to-center ── */}
+            <div className="exp-tabs" ref={expTabsRef}>
               {EXPERIENCES.map((e, i) => (
                 <button key={i}
+                  ref={el => expTabRefs.current[i] = el}
                   className={`exp-tab ${activeExpIndex === i ? 'active' : ''}`}
-                  onClick={() => setActiveExpIndex(i)}
+                  onClick={() => handleExpTabClick(i)}
                   onMouseEnter={hoverOn} onMouseLeave={hoverOff}
                   style={{ cursor: cur }}>
                   <span className="exp-tab-role">{e.role}</span>
@@ -775,7 +850,7 @@ export default function App() {
           </div>
           <p className="section-intro">
             Proyek-proyek yang paling merepresentasikan keahlian teknis dan cara saya berpikir.
-            Beberapa proyek bersifat confidential karena merupakan milik klien — source code tidak dapat dipublikasikan.
+            Beberapa proyek bersifat confidential karena merupakan milik klien source code tidak dapat dipublikasikan.
           </p>
           <div className="projects-grid">
             {PROJECTS.map((p, i) => (
@@ -829,14 +904,13 @@ export default function App() {
             <h2 className="section-title">Get In Touch</h2>
             <div className="section-line" />
           </div>
-
           <div className="contact-layout">
             <div className="contact-left">
               <h3 className="contact-heading">Mari Berkolaborasi!</h3>
               <p className="contact-text">
                 Saya sedang aktif mencari peluang baru sebagai <strong>Full Stack Developer</strong>,
                 <strong> UI/UX Designer</strong>, atau <strong>AI/Computer Vision Engineer</strong>.
-                Apabila Anda memiliki posisi relevan, proyek menarik, atau ingin berdiskusi — jangan
+                Apabila Anda memiliki posisi relevan, proyek menarik, atau ingin berdiskusi jangan
                 ragu menghubungi saya. Inbox saya selalu terbuka!
               </p>
               <div className="contact-info-cards">
@@ -869,13 +943,12 @@ export default function App() {
                   <div className="cic-icon"><IconPhone /></div>
                   <div className="cic-body">
                     <div className="cic-label">WhatsApp / Phone</div>
-                    <div className="cic-value">0822-2717-5851</div>
+                    <div className="cic-value">Click Here</div>
                   </div>
                   <span className="cic-arrow">↗</span>
                 </a>
               </div>
             </div>
-
             <div className="contact-right">
               <div className="contact-form-box">
                 <h4 className="cfb-title">Kirim Pesan Langsung</h4>
@@ -883,38 +956,22 @@ export default function App() {
                   <div className="cf-row">
                     <div className="cf-group">
                       <label className="cf-label">Nama</label>
-                      <input
-                        type="text"
-                        className="cf-input"
-                        placeholder="Nama Anda"
-                        value={contactName}
-                        onChange={(e) => setContactName(e.target.value)}
-                        required
-                        disabled={contactLoading}
-                      />
+                      <input type="text" className="cf-input" placeholder="Nama Anda"
+                        value={contactName} onChange={(e) => setContactName(e.target.value)}
+                        required disabled={contactLoading} />
                     </div>
                     <div className="cf-group">
                       <label className="cf-label">Email</label>
-                      <input
-                        type="email"
-                        className="cf-input"
-                        placeholder="email@perusahaan.com"
-                        value={contactEmail}
-                        onChange={(e) => setContactEmail(e.target.value)}
-                        required
-                        disabled={contactLoading}
-                      />
+                      <input type="email" className="cf-input" placeholder="email@perusahaan.com"
+                        value={contactEmail} onChange={(e) => setContactEmail(e.target.value)}
+                        required disabled={contactLoading} />
                     </div>
                   </div>
                   <div className="cf-group">
                     <label className="cf-label">Keperluan</label>
-                    <select
-                      className="cf-input cf-select"
-                      value={contactSubject}
+                    <select className="cf-input cf-select" value={contactSubject}
                       onChange={(e) => setContactSubject(e.target.value)}
-                      style={{ cursor: cur }}
-                      disabled={contactLoading}
-                    >
+                      style={{ cursor: cur }} disabled={contactLoading}>
                       <option value="">Pilih keperluan...</option>
                       <option>Full Stack Developer</option>
                       <option>UI/UX Designer Position</option>
@@ -925,37 +982,25 @@ export default function App() {
                   </div>
                   <div className="cf-group">
                     <label className="cf-label">Pesan</label>
-                    <textarea
-                      className="cf-input cf-textarea"
-                      placeholder="Halo Alex, saya tertarik untuk..."
-                      rows={5}
-                      value={contactMsg}
-                      onChange={(e) => setContactMsg(e.target.value)}
-                      required
-                      disabled={contactLoading}
-                    />
+                    <textarea className="cf-input cf-textarea" placeholder="Halo Alex, saya tertarik untuk..."
+                      rows={5} value={contactMsg} onChange={(e) => setContactMsg(e.target.value)}
+                      required disabled={contactLoading} />
                   </div>
-
                   {contactError && (
                     <p style={{ color: '#ff6b6b', fontFamily: 'var(--mono)', fontSize: '0.75rem', marginTop: '-0.25rem' }}>
                       ✕ {contactError}
                     </p>
                   )}
-
-                  <button
-                    type="submit"
-                    className="cf-submit"
+                  <button type="submit" className="cf-submit"
                     onMouseEnter={hoverOn} onMouseLeave={hoverOff}
                     style={{ cursor: cur, opacity: contactLoading ? 0.7 : 1 }}
-                    disabled={contactLoading}
-                  >
+                    disabled={contactLoading}>
                     {contactLoading ? 'Mengirim...' : contactSent ? '✓ Pesan Terkirim!' : 'Kirim Pesan →'}
                   </button>
                 </form>
               </div>
             </div>
           </div>
-
           <div className="footer-strip">
             <span>© 2025 Alexander Adma Karyadi · All Rights Reserved</span>
             <span>Built with React in Kota Sukabumi 🇮🇩</span>
