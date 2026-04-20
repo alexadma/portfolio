@@ -3,46 +3,46 @@ import emailjs from '@emailjs/browser';
 import './styles.css';
 
 // ─── EMAILJS CONFIG ─────────────────────────────────────────────────
-const EJS_SERVICE  = 'service_nqe11s2';
+const EJS_SERVICE = 'service_nqe11s2';
 const EJS_TEMPLATE = 'template_1welqjv';
 const EJS_FEEDBACK = 'template_1welqjv';
-const EJS_KEY      = 'ZWD3pIbVpDewDruZt';
+const EJS_KEY = 'ZWD3pIbVpDewDruZt';
 
 /* ─── DATA ────────────────────────────────────────────────────────── */
 const SKILLS = {
   'Programming': [
-    { name: 'Python',      level: 85 },
-    { name: 'PHP',         level: 88 },
-    { name: 'JavaScript',  level: 80 },
-    { name: 'HTML & CSS',  level: 90 },
+    { name: 'Python', level: 85 },
+    { name: 'PHP', level: 88 },
+    { name: 'JavaScript', level: 80 },
+    { name: 'HTML & CSS', level: 90 },
   ],
   'Backend': [
-    { name: 'Laravel',     level: 95 },
+    { name: 'Laravel', level: 90 },
     { name: 'CodeIgniter', level: 75 },
-    { name: 'REST API',    level: 50 },
+    { name: 'REST API', level: 60 },
     { name: 'RBAC / Auth', level: 90 },
   ],
   'Frontend': [
-    { name: 'Tailwind CSS',       level: 88 },
-    { name: 'Alpine.js',          level: 80 },
-    { name: 'Responsive Design',  level: 90 },
-    { name: 'React',              level: 65 },
+    { name: 'Tailwind CSS', level: 88 },
+    { name: 'Alpine.js', level: 80 },
+    { name: 'UI/UX', level: 90 },
+    { name: 'React', level: 65 },
   ],
   'Database': [
-    { name: 'MySQL',       level: 85 },
-    { name: 'phpMyAdmin',  level: 82 },
+    { name: 'MySQL', level: 85 },
+    { name: 'phpMyAdmin', level: 82 },
   ],
   'AI & Computer Vision': [
-    { name: 'YOLO',      level: 95 },
-    { name: 'RCNN',      level: 75 },
-    { name: 'Roboflow',  level: 95 },
-    { name: 'OpenCV',    level: 90 },
+    { name: 'YOLO', level: 95 },
+    { name: 'RCNN', level: 75 },
+    { name: 'Roboflow', level: 95 },
+    { name: 'OpenCV', level: 90 },
   ],
   'Tools & DevOps': [
-    { name: 'Git',        level: 82 },
-    { name: 'Figma',      level: 85 },
-    { name: 'VPS / Linux',level: 80 },
-    { name: 'Hostinger',  level: 75 },
+    { name: 'Git', level: 82 },
+    { name: 'Figma', level: 85 },
+    { name: 'VPS / Linux', level: 80 },
+    { name: 'Hostinger', level: 75 },
   ],
 };
 
@@ -128,7 +128,7 @@ const PROJECTS = [
     subtitle: 'React · UI/UX Design · Open Source',
     desc: 'Website portofolio personal yang dibangun dengan React, menampilkan proyek, pengalaman, dan keahlian secara interaktif. Dilengkapi custom cursor, animasi scroll reveal, sidebar navigasi responsif, dan mobile menu didesain dengan pendekatan developer-aesthetic.',
     tech: ['React', 'JavaScript', 'CSS', 'Vite', 'Responsive Design'],
-    highlight: 'Open Source',
+    highlight: 'Personal Project',
     link: 'https://alexander-adma.vercel.app/',
     github: 'https://github.com/alexadma/portfolio',
   },
@@ -138,7 +138,7 @@ const PROJECTS = [
     subtitle: 'Laravel Full Stack · Personal Project · Open Source',
     desc: 'Website rental mobil dengan sistem booking dan manajemen mobil berbasis Laravel. Dilengkapi fitur login, dashboard admin, dan integrasi payment gateway.',
     tech: ['Laravel', 'MySQL', 'PHP', 'Tailwind CSS', 'Alpine.js'],
-    highlight: 'Open Source',
+    highlight: 'Personal Project',
     link: null,
     github: 'https://github.com/alexadma/proyek-rent-mobil',
     linkLabel: 'in repair',
@@ -163,26 +163,36 @@ const PROJECTS = [
     link: 'https://legareca-space.id',
     github: null,
   },
+  {
+    num: '06',
+    title: 'AI Content Generator',
+    subtitle: 'Laravel + AI Text Generation · Open Source',
+    desc: 'Aplikasi web AI untuk generate konten teks otomatis dari prompt user. Menggunakan Laravel backend dengan integrasi AI API untuk menghasilkan artikel, caption sosial media, dan konten marketing. Fitur: real-time preview, history generation, copy-to-clipboard, dan responsive UI.',
+    tech: ['Laravel', 'PHP', 'MySQL', 'Tailwind CSS', 'Alpine.js', 'AI API Integration', 'JavaScript'],
+    highlight: 'Personal Project',
+    link: null, // Belum ada live demo
+    github: 'https://github.com/alexadma/ai-content-generator',
+  },
 ];
 
 const SERVICES = [
   { icon: '⚙️', title: 'Full Stack Web Development', desc: 'Membangun aplikasi web end-to-end dengan Laravel & MySQL arsitektur solid, backend scalable, dan frontend responsif yang siap production.' },
-  { icon: '🧠', title: 'Computer Vision & AI',        desc: 'Implementasi sistem deteksi objek real-time dan klasifikasi visual menggunakan YOLO dan deep learning untuk otomasi dan analisis visual.' },
-  { icon: '🎨', title: 'UI/UX Design (Figma)',         desc: 'Merancang pengalaman pengguna intuitif dan visual profesional dari wireframe, User Flow, hingga prototipe interaktif siap handoff.' },
-  { icon: '🖥️', title: 'Server & Deployment',          desc: 'Setup VPS Linux, konfigurasi & SSL, deployment Laravel, manajemen domain, dan integrasi jaringan aman menggunakan Tailscale.' },
+  { icon: '🧠', title: 'Computer Vision & AI', desc: 'Implementasi sistem deteksi objek real-time dan klasifikasi visual menggunakan YOLO dan deep learning untuk otomasi dan analisis visual.' },
+  { icon: '🎨', title: 'UI/UX Design (Figma)', desc: 'Merancang pengalaman pengguna intuitif dan visual profesional dari wireframe, User Flow, hingga prototipe interaktif siap handoff.' },
+  { icon: '🖥️', title: 'Server & Deployment', desc: 'Setup VPS Linux, konfigurasi & SSL, deployment Laravel, manajemen domain, dan integrasi jaringan aman menggunakan Tailscale.' },
 ];
 
 const STATS = [
-  { num: '2025', label: 'S.Kom Graduate'         },
-  { num: '4+',   label: 'Roles & Projects'        },
-  { num: '1+',   label: 'Years of Work Experience'},
+  { num: '2025', label: 'S.Kom Graduate' },
+  { num: '5+', label: 'Roles & Projects' },
+  { num: '1+', label: 'Years of Work Experience' },
 ];
 
 const THESIS_VIDEOS = [
   { id: 'q__Yi-kaCfA', model: 'YOLOv8m', config: 'SGD · lr=0.0001 · m=0.999', badge: 'v8' },
-  { id: 'UFADDCNM1QI', model: 'YOLOv8m', config: 'SGD · lr=0.01 · m=0.937',   badge: 'v8' },
+  { id: 'UFADDCNM1QI', model: 'YOLOv8m', config: 'SGD · lr=0.01 · m=0.937', badge: 'v8' },
   { id: 'zr9qI1wKQLY', model: 'YOLOv9m', config: 'SGD · lr=0.0001 · m=0.999', badge: 'v9' },
-  { id: 'yrcvjhXfmmY', model: 'YOLOv9m', config: 'SGD · lr=0.01 · m=0.937',   badge: 'v9' },
+  { id: 'yrcvjhXfmmY', model: 'YOLOv9m', config: 'SGD · lr=0.01 · m=0.937', badge: 'v9' },
 ];
 
 const HERO_VIDEO = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4';
@@ -221,41 +231,58 @@ function GrowupLogo({ className, style, onClick, onMouseEnter, onMouseLeave }) {
 
 /* ─── COMPONENT ───────────────────────────────────────────────────── */
 export default function App() {
-  const [activeSection,   setActiveSection  ] = useState('home');
-  const [menuOpen,        setMenuOpen       ] = useState(false);
-  const [cursorPos,       setCursorPos      ] = useState({ x: -100, y: -100 });
-  const [hovering,        setHovering       ] = useState(false);
-  const [isTouch,         setIsTouch        ] = useState(false);
-  const [activeExpIndex,  setActiveExpIndex ] = useState(0);
+  const [activeSection, setActiveSection] = useState('home');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
+  const [hovering, setHovering] = useState(false);
+  const [isTouch, setIsTouch] = useState(false);
+  const [activeExpIndex, setActiveExpIndex] = useState(0);
   const [visibleSections, setVisibleSections] = useState(new Set(['home']));
-  const [activeVideoIndex,setActiveVideoIndex] = useState(0);
-  const [scrolled,        setScrolled       ] = useState(false);
+  const [activeVideoIndex, setActiveVideoIndex] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
 
-  const [contactName,    setContactName   ] = useState('');
-  const [contactEmail,   setContactEmail  ] = useState('');
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
   const [contactSubject, setContactSubject] = useState('');
-  const [contactMsg,     setContactMsg    ] = useState('');
-  const [contactSent,    setContactSent   ] = useState(false);
+  const [contactMsg, setContactMsg] = useState('');
+  const [contactSent, setContactSent] = useState(false);
   const [contactLoading, setContactLoading] = useState(false);
-  const [contactError,   setContactError  ] = useState('');
+  const [contactError, setContactError] = useState('');
 
-  const [feedbackText,    setFeedbackText   ] = useState('');
-  const [feedbackSent,    setFeedbackSent   ] = useState(false);
+  const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackSent, setFeedbackSent] = useState(false);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
 
   const expTabsRef = useRef(null);
   const expTabRefs = useRef([]);
 
-  const sections = ['home','about','services','skills','education','experience','projects','contact'];
-  const NAV_LINKS = ['Home','About','Services','Skills','Education','Experience','Projects','Contact'];
+  const sections = ['home', 'about', 'services', 'skills', 'education', 'experience', 'projects', 'contact'];
+  const NAV_LINKS = ['Home', 'About', 'Services', 'Skills', 'Education', 'Experience', 'Projects', 'Contact'];
 
   useEffect(() => { setIsTouch(isTouchDevice()); }, []);
 
   useEffect(() => {
     if (isTouch) return;
-    const move = (e) => setCursorPos({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', move);
-    return () => window.removeEventListener('mousemove', move);
+
+    const move = (e) => {
+      // Langsung update posisi tanpa delay
+      setCursorPos({ x: e.clientX, y: e.clientY });
+    };
+
+    // Throttle untuk performa lebih baik
+    let ticking = false;
+    const throttledMove = (e) => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          move(e);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('mousemove', throttledMove);
+    return () => window.removeEventListener('mousemove', throttledMove);
   }, [isTouch]);
 
   useEffect(() => {
@@ -294,15 +321,15 @@ export default function App() {
     const containerEl = expTabsRef.current;
     if (tabEl && containerEl) {
       const containerWidth = containerEl.offsetWidth;
-      const tabLeft  = tabEl.offsetLeft;
+      const tabLeft = tabEl.offsetLeft;
       const tabWidth = tabEl.offsetWidth;
       const scrollTarget = tabLeft - containerWidth / 2 + tabWidth / 2;
       containerEl.scrollTo({ left: scrollTarget, behavior: 'smooth' });
     }
   }, []);
 
-  const isVis  = (id) => visibleSections.has(id);
-  const hoverOn  = () => !isTouch && setHovering(true);
+  const isVis = (id) => visibleSections.has(id);
+  const hoverOn = () => !isTouch && setHovering(true);
   const hoverOff = () => !isTouch && setHovering(false);
   const cur = isTouch ? 'pointer' : 'none';
 
@@ -313,11 +340,11 @@ export default function App() {
     setContactError('');
     try {
       await emailjs.send(EJS_SERVICE, EJS_TEMPLATE, {
-        name:    contactName,
-        email:   contactEmail,
-        title:   contactSubject || 'Tidak ada keperluan dipilih',
+        name: contactName,
+        email: contactEmail,
+        title: contactSubject || 'Tidak ada keperluan dipilih',
         message: contactMsg,
-        time:    new Date().toLocaleString('id-ID'),
+        time: new Date().toLocaleString('id-ID'),
       }, EJS_KEY);
       setContactSent(true);
       setContactName(''); setContactEmail(''); setContactSubject(''); setContactMsg('');
@@ -336,11 +363,11 @@ export default function App() {
     setFeedbackLoading(true);
     try {
       await emailjs.send(EJS_SERVICE, EJS_FEEDBACK, {
-        name:    'Anonymous (Footer)',
-        email:   'no-reply@portfolio.dev',
-        title:   'Footer Feedback',
+        name: 'Anonymous (Footer)',
+        email: 'no-reply@portfolio.dev',
+        title: 'Footer Feedback',
         message: feedbackText,
-        time:    new Date().toLocaleString('id-ID'),
+        time: new Date().toLocaleString('id-ID'),
       }, EJS_KEY);
       setFeedbackSent(true);
       setFeedbackText('');
@@ -360,7 +387,7 @@ export default function App() {
       {/* ── CUSTOM CURSOR ─────────────────────────────────────────── */}
       {!isTouch && (
         <>
-          <div className="cursor-dot"   style={{ left: cursorPos.x, top: cursorPos.y }} />
+          <div className="cursor-dot" style={{ left: cursorPos.x, top: cursorPos.y }} />
           <div className={`cursor-ring ${hovering ? 'hovering' : ''}`} style={{ left: cursorPos.x, top: cursorPos.y }} />
         </>
       )}
@@ -477,14 +504,12 @@ export default function App() {
             <div className="hero-tag animate-pop-in">✦ Full Stack · AI · UI/UX</div>
             <h1 className="hero-headline animate-pop-in-delay">
               Where <em className="hero-em">dreams</em> rise<br />
-              <em className="hero-em-2">through the silence.</em>
+              <em className="hero-em-2">starting with a single step.</em>
             </h1>
 
             {/* ── HERO SUBTEXT — disesuaikan tema portofolio profesional ── */}
             <p className="hero-subtext animate-pop-in-delay-2">
-              Full Stack Developer & AI Engineer yang membangun sistem nyata —
-              dari arsitektur Laravel hingga Computer Vision berbasis YOLO,
-              dengan desain UI/UX yang mengutamakan fungsi dan pengalaman pengguna.
+              Full Stack Developer & AI Engineer yang membangun solusi end-to-end, dari arsitektur backend hingga implementasi AI berbasis computer vision, dengan fokus pada performa dan pengalaman pengguna.
             </p>
 
             <div className="hero-ctas animate-pop-in-delay-3">
@@ -531,8 +556,7 @@ export default function App() {
             <div className="about-text-col">
               <p className="about-lead">
                 Halo! Saya <strong>Alexander Adma Karyadi</strong> — Sarjana Informatika yang
-                terjun dalam bidang <em>Full Stack Development</em> dan kecerdasan buatan
-                berbasis <em>Computer Vision</em>.
+                terjun dalam bidang <em>AI Engineer</em> berbasis <em>Computer Vision</em> dan <em>Full Stack Development</em>.
               </p>
               <p>
                 Di <strong>Universitas Sanata Dharma Yogyakarta</strong>, saya tidak hanya membangun
@@ -542,7 +566,7 @@ export default function App() {
               </p>
               <p>
                 Saat ini saya aktif sebagai <strong>Full Stack Developer</strong> dan <strong>UI/UX
-                Designer</strong> — membangun sistem web enterprise berbasis Laravel, merancang user
+                  Designer</strong> — membangun sistem web enterprise berbasis Laravel, merancang user
                 flow di Figma, dan mengelola infrastruktur server pada VPS.
               </p>
               <p>
@@ -552,9 +576,9 @@ export default function App() {
               </p>
               <div className="about-values">
                 {[
-                  { icon: '⚡', title: 'Fast Learner',         desc: 'Cepat beradaptasi dengan stack, tools, dan domain baru dari Laravel ke YOLO, dari UI ke server config.' },
-                  { icon: '🎯', title: 'End-to-End Builder',   desc: 'Terbiasa menangani proyek dari nol: desain, development, deployment, hingga troubleshooting hardware.' },
-                  { icon: '🤝', title: 'Leader & Collaborator',desc: 'Pernah memimpin koordinasi basket tingkat universitas — kolaborasi lintas divisi bukan hal asing.' },
+                  { icon: '⚡', title: 'Fast Learner', desc: 'Cepat beradaptasi dengan stack, tools, dan domain baru dari Laravel ke YOLO, dari UI ke server config.' },
+                  { icon: '🎯', title: 'End-to-End Builder', desc: 'Terbiasa menangani proyek dari nol: desain, development, deployment, hingga troubleshooting hardware.' },
+                  { icon: '🤝', title: 'Leader & Collaborator', desc: 'Pernah memimpin koordinasi basket tingkat universitas — kolaborasi lintas divisi bukan hal asing.' },
                 ].map((v, i) => (
                   <div key={v.title} className="value-item" style={{ animationDelay: `${i * 0.1}s` }}>
                     <span className="value-icon">{v.icon}</span>
@@ -576,11 +600,11 @@ export default function App() {
                 <div className="profile-divider" />
                 <div className="profile-info-list">
                   {[
-                    ['Degree',     'S.Kom Informatika'],
+                    ['Degree', 'S.Kom Informatika'],
                     ['University', 'Sanata Dharma, Yogyakarta'],
-                    ['Status',     'Fresh Graduate (2025)'],
-                    ['Location',   'Yogyakarta, Indonesia'],
-                    ['Email',      'alexadma16@gmail.com'],
+                    ['Status', 'Fresh Graduate (2025)'],
+                    ['Location', 'Yogyakarta, Indonesia'],
+                    ['Email', 'alexadma16@gmail.com'],
                   ].map(([k, v]) => (
                     <div key={k} className="pil-item">
                       <span className="pil-key">{k}</span>
@@ -708,7 +732,7 @@ export default function App() {
                   Sistem mampu mendeteksi bola dan menentukan kejadian skor tanpa operator manual.
                 </p>
                 <div className="edu-thesis-tech">
-                  {['Python','TensorFlow','YOLO','OpenCV','Roboflow','ultralytics','Deep Learning','Computer Vision'].map(t => (
+                  {['Python', 'TensorFlow', 'YOLO', 'OpenCV', 'Roboflow', 'ultralytics', 'Deep Learning', 'Computer Vision'].map(t => (
                     <span key={t} className="eth-chip">{t}</span>
                   ))}
                 </div>
