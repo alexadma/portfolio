@@ -4,7 +4,7 @@ function Intro({ onComplete }) {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [displayText, setDisplayText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
-  const texts = ['Hello', 'Welcome To', 'My Portfolio'];
+  const texts = ['Hello', 'Welcome To', 'My Portofolio'];
 
   useEffect(() => {
     const currentFullText = texts[currentTextIndex];
