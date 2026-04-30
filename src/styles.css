@@ -38,24 +38,39 @@
   --spring:       cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-html { scroll-behavior: smooth; }
+/* ── FIX DOUBLE SCROLL: html & body harus single scroll context ── */
+html {
+  /* HAPUS overflow-x: hidden dari html — penyebab utama double scroll */
+  /* scroll-behavior di sini tetap aman */
+  scroll-behavior: smooth;
+  height: 100%;
+}
 
 body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
-  overflow-x: hidden;
+  /* FIX: ganti overflow-x: hidden dengan pendekatan yang tidak menciptakan scroll context baru */
+  overflow-x: clip; /* clip tidak menciptakan scroll context, hidden menciptakan */
   cursor: none;
   line-height: 1.6;
-  /* Prevent horizontal scroll on all devices */
-  max-width: 100vw;
+  min-height: 100%;
+  /* FIX: pastikan body tidak punya height atau overflow yang membatasi */
+  height: auto;
 }
+
 @media (hover: none) and (pointer: coarse) { body { cursor: auto; } }
 a { text-decoration: none; color: inherit; }
 button { font-family: inherit; border: none; background: none; }
 
 /* Fix: semua gambar responsif */
 img { max-width: 100%; height: auto; display: block; }
+
+/* ── FIX: .app wrapper tidak boleh punya overflow atau height yang membatasi ── */
+.app {
+  position: relative;
+  /* Pastikan tidak ada overflow tersembunyi di sini */
+}
 
 /* ══════════════════════════════════════════════════════════
    ── CUSTOM CURSOR
@@ -68,7 +83,6 @@ img { max-width: 100%; height: auto; display: block; }
   pointer-events: none;
   z-index: 99999;
   transform: translate(-50%, -50%);
-  /* Hapus transition - langsung follow mouse */
 }
 
 .cursor-ring {
@@ -79,12 +93,10 @@ img { max-width: 100%; height: auto; display: block; }
   pointer-events: none;
   z-index: 99998;
   transform: translate(-50%, -50%);
-  /* Pisahkan transition: posisi INSTANT, ukuran LAMBAT */
   transition: 
     width 0.12s cubic-bezier(0.4, 0, 0.2, 1),
     height 0.12s cubic-bezier(0.4, 0, 0.2, 1),
     border-color 0.15s ease;
-  /* left/top TIDAK pakai transition - langsung follow */
   will-change: transform;
 }
 
@@ -94,10 +106,6 @@ img { max-width: 100%; height: auto; display: block; }
   border-color: var(--accent);
   border-width: 1px;
   box-shadow: 0 0 12px rgba(200,240,74,0.3);
-}
-.cursor-ring.hovering {
-  width: 48px; height: 48px;
-  border-color: var(--accent);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -213,11 +221,18 @@ img { max-width: 100%; height: auto; display: block; }
   align-items: center;
   margin-bottom: 0.5rem;
 }
+
 .footer-logo-img {
-  height: 32px;
-  width: auto;
+  height: 44px;
+  min-width: 120px;
   object-fit: contain;
-  border-radius: 6px;
+  border-radius: 8px;
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -461,9 +476,10 @@ img { max-width: 100%; height: auto; display: block; }
   position: relative;
   width: 100%;
   min-height: 100vh;
-  min-height: 100svh; /* safe area on mobile */
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
+  /* FIX: overflow hidden di sini aman karena hero adalah satu section, bukan body */
   overflow: hidden;
 }
 .hero-video {
@@ -486,7 +502,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 /* Particles */
-.hero-particles { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.hero-particles { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
 .particle {
   position: absolute;
   width: 2px; height: 2px;
@@ -653,15 +669,23 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 /* ══════════════════════════════════════════════════════════
-   ── MAIN LAYOUT
+   ── MAIN LAYOUT — FIX DOUBLE SCROLL
    ══════════════════════════════════════════════════════════ */
-.main-content { width: 100%; overflow-x: hidden; }
+.main-content {
+  width: 100%;
+  /* FIX: ganti overflow-x: hidden dengan overflow-x: clip
+     clip tidak menciptakan block formatting context / scroll container baru
+     sehingga tidak ada scroll ganda */
+  overflow-x: clip;
+}
 
 .section {
   padding: var(--section-pad-y) var(--section-pad-x);
   border-bottom: 1px solid var(--border);
   position: relative;
-  overflow-x: hidden;
+  /* FIX: hapus overflow-x: hidden dari setiap section jika ada,
+     gunakan overflow: visible agar tidak menciptakan scroll context */
+  overflow-x: clip;
 }
 .section::before {
   content: '';
@@ -1235,6 +1259,7 @@ img { max-width: 100%; height: auto; display: block; }
 .hl-thesis       { color: #7dd3fc; border-color: rgba(125,211,252,0.3); background: rgba(125,211,252,0.05); }
 .hl-open-source  { color: var(--accent); border-color: rgba(200,240,74,0.3); background: var(--accent-g); }
 .hl-client-work  { color: #fcd34d; border-color: rgba(252,211,77,0.3); background: rgba(252,211,77,0.05); }
+.hl-personal-project { color: var(--accent); border-color: rgba(200,240,74,0.3); background: var(--accent-g); }
 .project-title   { font-family: var(--font-sans); font-weight: 700; font-size: 0.97rem; line-height: 1.25; }
 .project-subtitle { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); }
 .project-desc    { font-size: 0.81rem; color: var(--text-dim); line-height: 1.75; flex: 1; }
@@ -1355,7 +1380,6 @@ img { max-width: 100%; height: auto; display: block; }
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
   width: 100%;
-  /* Fix: prevent zoom on iOS */
   -webkit-text-size-adjust: 100%;
 }
 .cf-input:focus {
@@ -1379,7 +1403,6 @@ img { max-width: 100%; height: auto; display: block; }
   letter-spacing: 0.04em;
   margin-top: 0.15rem;
   width: 100%;
-  /* Fix touch target */
   min-height: 44px;
 }
 .cf-submit:hover { background: var(--accent-d); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(200,240,74,0.2); }
@@ -1474,7 +1497,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 /* ══════════════════════════════════════════════════════════
-   ── RESPONSIVE: 1280px (Large Laptop)
+   ── RESPONSIVE: 1280px
    ══════════════════════════════════════════════════════════ */
 @media (max-width: 1280px) {
   :root { --section-pad-x: 3rem; --content-max: 960px; }
@@ -1485,7 +1508,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 /* ══════════════════════════════════════════════════════════
-   ── RESPONSIVE: 1100px (Small Laptop / Large Tablet Landscape)
+   ── RESPONSIVE: 1100px
    ══════════════════════════════════════════════════════════ */
 @media (max-width: 1100px) {
   :root { --section-pad-x: 2.5rem; }
@@ -1501,11 +1524,11 @@ img { max-width: 100%; height: auto; display: block; }
   .tv-body { grid-template-columns: 150px 1fr; }
   .top-nav-links { gap: 0; }
   .top-nav-link { font-size: 0.66rem; padding: 0.32rem 0.45rem; }
-  .avail-pill { display: none; } /* hide on mid screens, show CV only */
+  .avail-pill { display: none; }
 }
 
 /* ══════════════════════════════════════════════════════════
-   ── RESPONSIVE: 900px (Tablet Portrait + Large Phone)
+   ── RESPONSIVE: 900px
    ══════════════════════════════════════════════════════════ */
 @media (max-width: 900px) {
   .hamburger { display: flex; }
@@ -1548,12 +1571,11 @@ img { max-width: 100%; height: auto; display: block; }
   .footer-links { flex-direction: row; flex-wrap: wrap; gap: 0.75rem 1.5rem; }
   .hero-stats { gap: 1.5rem; padding: 1rem 1.5rem; }
 
-  /* contact info: allow overflow ellipsis */
   .cic-value { font-size: 0.7rem; }
 }
 
 /* ══════════════════════════════════════════════════════════
-   ── RESPONSIVE: 600px (Phone Landscape / Small Phone)
+   ── RESPONSIVE: 600px
    ══════════════════════════════════════════════════════════ */
 @media (max-width: 600px) {
   :root { --section-pad-x: 1rem; --section-pad-y: 3.5rem; }
@@ -1602,13 +1624,12 @@ img { max-width: 100%; height: auto; display: block; }
   .footer-bottom   { flex-direction: column; text-align: center; gap: 0.3rem; }
   .footer-top      { gap: 1.25rem; }
 
-  /* about values: smaller padding */
   .value-item { padding: 0.8rem 1rem; }
-  .value-item:hover { transform: none; } /* disable hover shift on touch */
+  .value-item:hover { transform: none; }
 }
 
 /* ══════════════════════════════════════════════════════════
-   ── RESPONSIVE: 400px (Small Android phones)
+   ── RESPONSIVE: 400px
    ══════════════════════════════════════════════════════════ */
 @media (max-width: 400px) {
   :root { --section-pad-x: 0.85rem; }
@@ -1626,7 +1647,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 /* ══════════════════════════════════════════════════════════
-   ── TOUCH DEVICE: disable hover transforms
+   ── TOUCH DEVICE
    ══════════════════════════════════════════════════════════ */
 @media (hover: none) and (pointer: coarse) {
   .service-card:hover,
@@ -1635,7 +1656,6 @@ img { max-width: 100%; height: auto; display: block; }
   .cic:hover {
     transform: none;
   }
-  /* Ensure all tap targets are at least 44px */
   .top-nav-link, .mob-btn, .cf-submit, .footer-fb-btn, .nav-cta-btn {
     min-height: 44px;
     display: flex;
