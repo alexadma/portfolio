@@ -173,6 +173,16 @@ const PROJECTS = [
     link: null, // Belum ada live demo
     github: 'https://github.com/alexadma/ai-content-generator',
   },
+  {
+    num: '07',
+    title: 'AI Car Counted Detection',
+    subtitle: 'Computer Vision · Open Source',
+    desc: 'Aplikasi computer vision untuk mendeteksi dan menghitung jumlah kendaraan menggunakan teknologi YOLO 12 dan deep learning. Fitur: real-time detection, counting accuracy, dan visualisasi hasil.',
+    tech: ['Python', 'OpenCV', 'YOLO', 'Deep Learning', 'Streamlit'],
+    highlight: 'Personal Project',
+    link: null,
+    github: 'https://github.com/alexadma/CarCounting',
+  }
 ];
 
 const SERVICES = [
