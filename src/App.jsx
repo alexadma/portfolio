@@ -180,7 +180,7 @@ const PROJECTS = [
     desc: 'Aplikasi computer vision untuk mendeteksi dan menghitung jumlah kendaraan menggunakan teknologi YOLO 12 dan deep learning. Fitur: real-time detection, counting accuracy, dan visualisasi hasil.',
     tech: ['Python', 'OpenCV', 'YOLO', 'Deep Learning', 'Streamlit'],
     highlight: 'Personal Project',
-    Result: 'https://youtu.be/FiZLmGX7uZ8',
+    link: 'https://youtu.be/FiZLmGX7uZ8',
     github: 'https://github.com/alexadma/CarCounting',
   }
 ];
