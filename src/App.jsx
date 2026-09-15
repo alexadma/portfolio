@@ -139,9 +139,9 @@ const PROJECTS = [
     desc: 'Website rental mobil dengan sistem booking dan manajemen mobil berbasis Laravel. Dilengkapi fitur login, dashboard admin, dan integrasi payment gateway.',
     tech: ['Laravel', 'MySQL', 'PHP', 'Tailwind CSS', 'Alpine.js'],
     highlight: 'Personal Project',
-    link: null,
+    link: 'https://proyek-rent-mobil.vercel.app/',
     github: 'https://github.com/alexadma/proyek-rent-mobil',
-    linkLabel: 'in repair',
+    linkLabel: 'Live Demo',
   },
   {
     num: '04',
